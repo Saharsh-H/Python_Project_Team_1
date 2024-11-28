@@ -14,6 +14,7 @@ class MainWindow(customtkinter.CTk):
         self.parent = parent
         self.package_col = packages_col
         parent.withdraw()
+        self.current_page = 1
 
         main_window = customtkinter.CTkToplevel(self)
         main_window.lift()
@@ -24,8 +25,22 @@ class MainWindow(customtkinter.CTk):
         main_window.grid_rowconfigure(1, weight=1)
         self.main_window = main_window
         self.header_frame = customtkinter.CTkFrame(main_window, height=50, corner_radius=0)
+        self.header_frame.grid(row=0, column=0, sticky="ew")
+        self.header_frame.grid_columnconfigure(0, weight=1)  # Back Button
         self.header_frame.grid_columnconfigure(1, weight=0)  # Logout Button
         self.header_frame.grid_columnconfigure(2, weight=0)  # View Cart Button
+
+        self.back_button = customtkinter.CTkButton(
+            self.header_frame, 
+            text="Back",
+            width = 100,
+            command=self.go_back,
+        )
+        self.back_button.grid(row = 0, column = 0, padx = 10, pady=10, sticky="w")
+
+        # self.forward_button = customtkinter.CTkButton(self.button_frame, text="Forward", command=self.go_forward)
+        # self.forward_button.grid(row = 0, column = 1)
+
         self.logout_button = customtkinter.CTkButton(
             self.header_frame,
             text="Logout",
@@ -34,14 +49,22 @@ class MainWindow(customtkinter.CTk):
             fg_color="red",
             hover_color="darkred",
         )
-        self.logout_button.grid(row=0, column=1, padx=10, pady=10, sticky="ne")
+        self.logout_button.grid(row=0, column=2, padx=10, pady=10, sticky="ne")
+
+        self.duration = customtkinter.CTkLabel(
+            self.header_frame,
+            text="Duration",
+            width=100,
+        )
+        self.label.grid(row=0, column=2, padx=10, pady=10, sticky="ne")
+
         self.cart_button = customtkinter.CTkButton(
             self.header_frame,
             text="View Cart",
             command=self.view_cart,
             width=100,
         )
-        self.cart_button.grid(row=0, column=2, padx=10, pady=5, sticky="e")
+        self.cart_button.grid(row=0, column=3, padx=10, pady=5, sticky="ne")
 
         main_window.tab_view = customtkinter.CTkTabview(main_window)
         main_window.tab_view.grid(row=0, column=0, sticky="nsew", padx=10, pady=10)
@@ -156,13 +179,23 @@ class MainWindow(customtkinter.CTk):
 
             book_button = customtkinter.CTkButton(
                 self.results_frame,
-                text="Book Now",
+                text="Add",
                 command=lambda c=car: self.book_car(c),
             )
             book_button.grid(row=index, column=1, padx=10, pady=5)
 
+            delete_button = customtkinter.CTkButton(
+                self.results_frame,
+                text="Delete",
+                command=lambda c=car: self.delete_car(c),
+            )
+            delete_button.grid(row=index, column=2, padx=10, pady=5)
+
     def book_car(self, car):
         print(f"Booking car: {car['car_model']} from {car['rental_company']} at {car['price']} rupees/day")
+
+    def delete_car(self, car):
+        print(f"Deleting car: {car['car_model']} from {car['rental_company']} at {car['price']} rupees/day")
 
     def search_flights(self):
         print("Search button clicked for Flights!")
@@ -232,6 +265,28 @@ class MainWindow(customtkinter.CTk):
         self.populate_tab(cars_tab, car_data, ["Model", "Price", "Rental Company", "Duration"])
         self.populate_tab(flights_tab, flight_data, ["Flight No", "Price", "Source", "Destination", "Date"])
         self.populate_tab(hotels_tab, hotel_data, ["Hotel Name", "Price", "City", "Duration (days)"])
+
+    def go_back(self):
+    #    if self.current_page == 2:
+    #     self.current_page = 1
+    #     self.label.configure(text="Page 1")
+    #     self.update_buttons()
+        pass
+
+    def go_forward(self):
+        # if self.current_page == 1:
+        #     self.current_page = 2
+        #     self.label.configure(text="Page 2")
+        # self.update_buttons()
+        pass
+
+    def update_buttons(self):
+        if self.current_page == 1:
+            self.back_button.configure(state="disabled")
+            self.forward_button.configure(state="normal")
+        else:
+            self.back_button.configure(state="normal")
+            self.forward_button.configure(state="disabled")
 
     def view_cart(self):
         print("View Cart clicked!")

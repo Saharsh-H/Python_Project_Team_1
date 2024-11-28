@@ -92,7 +92,7 @@ class MainWindow(customtkinter.CTk):
         search_button.grid(row=3, column=0, padx=10, pady=10)
 
         self.view_packages_button = customtkinter.CTkButton(tab,text = "View Packages",command = self.view_packages)
-        self.view_packages_button.grid(row = 3,column = 1,padx = 10,pady = (0,0))
+        self.view_packages_button.grid(row = 1,column = 1,padx = 10,pady = (0,0))
 
     def add_hotels_tab_content(self, tab):
         tab.grid_columnconfigure(0, weight=1)
@@ -122,7 +122,7 @@ class MainWindow(customtkinter.CTk):
         search_button.grid(row=2, column=0, padx=10, pady=10)
 
         self.view_packages_button = customtkinter.CTkButton(tab,text = "View Packages",command = self.view_packages)
-        self.view_packages_button.grid(row = 3,column = 1 ,padx = 10,pady = (0,0))
+        self.view_packages_button.grid(row = 1,column = 1 ,padx = 10,pady = (0,0))
 
     def search_cars(self):
 
@@ -176,23 +176,28 @@ class MainWindow(customtkinter.CTk):
         self.destroy()
 
     def populate_tab(self, tab, data, headers):
-        # Create Treeview for the data
+
         tree = ttk.Treeview(tab, columns=headers, show="headings", height=10)
         tree.pack(fill="both", expand=True, padx=10, pady=10)
 
-        # Add Scrollbar for the Treeview
+
         scrollbar = ttk.Scrollbar(tab, orient="vertical", command=tree.yview)
         tree.configure(yscrollcommand=scrollbar.set)
         scrollbar.pack(side="right", fill="y")
 
-        # Set the column headers
+
         for header in headers:
             tree.heading(header, text=header)
             tree.column(header, anchor="center")
 
-        # Add rows to the Treeview
+
         for record in data:
             tree.insert("", "end", values=tuple(record.values()))
+        
+        rm_packages = customtkinter.CTkButton(
+                tab,
+                text="Remove Packages"
+            )
 
     def view_packages(self):
         # Placeholder Data
@@ -214,21 +219,38 @@ class MainWindow(customtkinter.CTk):
             {"Hotel Name": "Hyatt", "Price": 400, "City": "Chicago", "Duration (days)": 4},
         ] * 3  # Tripled for demo
 
-        # Create a new Toplevel window
+        
+
+
         booked_items_window = customtkinter.CTkToplevel(self)
         booked_items_window.title("Your Booked Items")
         booked_items_window.geometry("700x500")
 
-        # Create a Tabview for Cars, Flights, and Hotels
+
         tabview = customtkinter.CTkTabview(booked_items_window)
         tabview.pack(fill="both", expand=True, padx=10, pady=10)
 
-        # Add Tabs
+
+
         cars_tab = tabview.add("Cars")
         flights_tab = tabview.add("Flights")
         hotels_tab = tabview.add("Hotels")
 
-        # Populate Each Tab
+        def remove_packages(tab_name):
+            print(f"Remove packages button clicked for {tab_name} tab")
+
+        cars_remove_btn = customtkinter.CTkButton(cars_tab, text="Remove Packages", command=lambda: remove_packages("Cars"),fg_color="red", hover_color="darkred")
+        flights_remove_btn = customtkinter.CTkButton(flights_tab, text="Remove Packages", command=lambda: remove_packages("Flights"),fg_color="red",hover_color="darkred")
+        hotels_remove_btn = customtkinter.CTkButton(hotels_tab, text="Remove Packages",command=lambda: remove_packages("Hotels"),fg_color="red",hover_color="darkred")
+
+        
+        cars_remove_btn.pack(side="bottom", pady=10)
+        flights_remove_btn.pack(side="bottom", pady=10)
+        hotels_remove_btn.pack(side="bottom", pady=10)
+
+        
+
+
         self.populate_tab(cars_tab, car_data, ["Model", "Price", "Rental Company", "Duration"])
         self.populate_tab(flights_tab, flight_data, ["Flight No", "Price", "Source", "Destination", "Date"])
         self.populate_tab(hotels_tab, hotel_data, ["Hotel Name", "Price", "City", "Duration (days)"])

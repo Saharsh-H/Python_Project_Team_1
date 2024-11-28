@@ -9,7 +9,7 @@ from PIL import Image, ImageTk
 from Windows.MainWindow import MainWindow
 customtkinter.set_appearance_mode("dark")
 customtkinter.set_default_color_theme("dark-blue")
-mongo_path = "MONGO_PATH"
+mongo_path = "mongodb+srv://Cracklescreeper:Rohal0208@discordbot.jotdy.mongodb.net/"
 myclient = pymongo.MongoClient(mongo_path)
 db = myclient["travel_manager"]
 users_col = db["users"]

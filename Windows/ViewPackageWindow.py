@@ -7,5 +7,5 @@ from PIL import Image, ImageTk
 from tkinter import ttk
 
 class ViewPackage(customtkinter.CTk):
-    def __init__(self, db, parent, packages_col):
+    def __init__(self):
         pass

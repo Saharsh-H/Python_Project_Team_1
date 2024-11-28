@@ -2,7 +2,7 @@ import sys
 import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 import customtkinter
-from Classes.UserManager import UserManager
+from Windows.ViewPackageWindow import ViewPackage
 from PIL import Image, ImageTk
 from tkinter import ttk
 
@@ -35,14 +35,6 @@ class MainWindow(customtkinter.CTk):
             width=100,
         )
         self.duration.grid(row=0, column=2, padx=10, pady=10, sticky="ne")
-
-        self.cart_button = customtkinter.CTkButton(
-            self.header_frame,
-            text="View Cart",
-            command=self.view_cart,
-            width=100,
-        )
-        self.cart_button.grid(row=0, column=3, padx=10, pady=5, sticky="ne")
 
         main_window.tab_view = customtkinter.CTkTabview(main_window)
         main_window.tab_view.grid(row=0, column=0, sticky="nsew", padx=10, pady=10)
@@ -94,7 +86,11 @@ class MainWindow(customtkinter.CTk):
         search_button = customtkinter.CTkButton(tab, text=f"Search {tab_type}", command=callback)
         search_button.grid(row=3, column=0, padx=10, pady=10)
 
-        self.view_packages_button = customtkinter.CTkButton(tab,text = "View Packages",command = self.view_packages)
+        self.view_packages_button = customtkinter.CTkButton(
+            tab,
+            text = "View Your Package",
+            command = self.view_packages
+            )
         self.view_packages_button.grid(row = 3,column = 1,padx = 10,pady = (0,0))
 
     def add_hotels_tab_content(self, tab):
@@ -124,7 +120,11 @@ class MainWindow(customtkinter.CTk):
         )
         search_button.grid(row=2, column=0, padx=10, pady=10)
 
-        self.view_packages_button = customtkinter.CTkButton(tab,text = "View Packages",command = self.view_packages)
+        self.view_packages_button = customtkinter.CTkButton(
+            tab,
+            text = "View Your Package",
+            command = self.view_packages
+            )
         self.view_packages_button.grid(row = 3,column = 1 ,padx = 10,pady = (0,0))
 
     def search_cars(self):
@@ -263,7 +263,8 @@ class MainWindow(customtkinter.CTk):
             tree.insert("", "end", values=tuple(record.values()))
 
     def view_packages(self):
-        view_pckg = ViewPackage
+        view_pckg = ViewPackage()
+        view_pckg.withdraw()
 
     def view_cart(self):
         print("View Cart clicked!")

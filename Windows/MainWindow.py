@@ -1,3 +1,6 @@
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 import customtkinter
 from Classes.UserManager import UserManager
 from PIL import Image, ImageTk
@@ -23,16 +26,15 @@ class MainWindow(customtkinter.CTk):
         self.header_frame = customtkinter.CTkFrame(main_window, height=50, corner_radius=0)
         self.header_frame.grid_columnconfigure(1, weight=0)  # Logout Button
         self.header_frame.grid_columnconfigure(2, weight=0)  # View Cart Button
-
-        # Add Logout button
         self.logout_button = customtkinter.CTkButton(
             self.header_frame,
             text="Logout",
             command=self.logout,
             width=100,
+            fg_color="red",
+            hover_color="darkred",
         )
-        self.logout_button.grid(row=0, column=1, padx=(5, 10), pady=5, sticky="e")
-
+        self.logout_button.grid(row=0, column=1, padx=10, pady=10, sticky="ne")
         self.cart_button = customtkinter.CTkButton(
             self.header_frame,
             text="View Cart",
@@ -60,6 +62,17 @@ class MainWindow(customtkinter.CTk):
             tab.grid_rowconfigure(2, weight=1)
 
     def add_tab_content(self, tab, tab_type, callback):
+        tab.grid_columnconfigure(0, weight=1)
+        tab.grid_columnconfigure(1, weight=0)  
+        logout_button = customtkinter.CTkButton(
+            tab,
+            text="Logout",
+            command=self.logout,
+            width=100,
+            fg_color="red",  
+            hover_color="darkred", 
+        )
+        logout_button.grid(row=0, column=1, padx=10, pady=(0, 0), sticky="ne")
         source_entry = customtkinter.CTkEntry(
             tab, placeholder_text=f"{tab_type} Source", height=50, width=250
         )
@@ -79,6 +92,17 @@ class MainWindow(customtkinter.CTk):
         search_button.grid(row=3, column=0, padx=10, pady=10)
 
     def add_hotels_tab_content(self, tab):
+        tab.grid_columnconfigure(0, weight=1)
+        tab.grid_columnconfigure(1, weight=0)
+        logout_button = customtkinter.CTkButton(
+            tab,
+            text="Logout",
+            command=self.logout,
+            width=100,
+            fg_color="red",  
+            hover_color="darkred",  
+        )
+        logout_button.grid(row=0, column=1, padx=10, pady=(0, 0), sticky="ne")
         location_entry = customtkinter.CTkEntry(
             tab, placeholder_text="Enter Location", height=50, width=250
         )

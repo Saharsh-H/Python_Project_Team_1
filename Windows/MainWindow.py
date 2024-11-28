@@ -26,13 +26,8 @@ class MainWindow(customtkinter.CTk):
         self.main_window = main_window
         self.header_frame = customtkinter.CTkFrame(main_window, height=50, corner_radius=0)
         self.header_frame.grid(row=0, column=0, sticky="ew")
-        self.header_frame.grid_columnconfigure(0, weight=1)  # Back Button
         self.header_frame.grid_columnconfigure(1, weight=0)  # Logout Button
-        self.header_frame.grid_columnconfigure(2, weight=0)  # View Cart Button
-
-        
-
-        
+        self.header_frame.grid_columnconfigure(2, weight=0)  # View Cart Button        
 
         self.duration = customtkinter.CTkLabel(
             self.header_frame,
@@ -165,7 +160,7 @@ class MainWindow(customtkinter.CTk):
             justify="right",
             font = ("Roboto", 20, "bold")
         )
-        Add_1_Day.grid(row=0, column=1, padx=10, pady=5, sticky="w")
+        Add_1_Day.grid(row=0, column=2, padx=10, pady=5, sticky="w")
 
         Delete_1_Day = customtkinter.CTkLabel(
             self.results_frame,
@@ -174,7 +169,7 @@ class MainWindow(customtkinter.CTk):
             justify="right",
             font = ("Roboto", 20, "bold")
         )
-        Delete_1_Day.grid(row=0, column=2, padx=10, pady=5, sticky="w")
+        Delete_1_Day.grid(row=0, column=3, padx=10, pady=5, sticky="w")
 
         Total_Duration = customtkinter.CTkLabel(
             self.results_frame,
@@ -183,7 +178,7 @@ class MainWindow(customtkinter.CTk):
             justify="right",
             font = ("Roboto", 20, "bold")
         )
-        Total_Duration.grid(row=0, column=3, padx=10, pady=5, sticky="w")
+        Total_Duration.grid(row=0, column=4, padx=10, pady=5, sticky="w")
 
         for index, car in enumerate(car_data["cars"]):
             print(f"{index}: {car}")
@@ -198,19 +193,26 @@ class MainWindow(customtkinter.CTk):
             )
             car_label.grid(row = index + 1, column=0, padx=10, pady=5, sticky="w")
 
+            add_to_pkg_button = customtkinter.CTkButton(
+                self.results_frame,
+                text="Add to Your Package",
+                command=lambda c=car: self.add_to_pkg(c),
+            )
+            add_to_pkg_button.grid(row = index + 1, column=1, padx=10, pady=5)
+
             book_button = customtkinter.CTkButton(
                 self.results_frame,
                 text="Add",
                 command=lambda c=car: self.book_car(c),
             )
-            book_button.grid(row = index + 1, column=1, padx=10, pady=5)
+            book_button.grid(row = index + 1, column=2, padx=10, pady=5)
 
             delete_button = customtkinter.CTkButton(
                 self.results_frame,
                 text="Delete",
                 command=lambda c=car: self.delete_car(c),
             )
-            delete_button.grid(row = index + 1, column=2, padx=10, pady=5)
+            delete_button.grid(row = index + 1, column=3, padx=10, pady=5)
 
             Duration = customtkinter.CTkLabel(
             self.results_frame,
@@ -219,10 +221,13 @@ class MainWindow(customtkinter.CTk):
             justify="right",
             font = ("Roboto", 20, "bold")
             )
-            Duration.grid(row = index + 1, column=3, padx=10, pady=5, sticky="w")
+            Duration.grid(row = index + 1, column=4, padx=10, pady=5, sticky="w")
 
     def book_car(self, car):
         print(f"Booking car: {car['car_model']} from {car['rental_company']} at {car['price']} rupees/day")
+
+    def add_to_pkg(self, car):
+        print("Added to your package")
 
     def delete_car(self, car):
         print(f"Deleting car: {car['car_model']} from {car['rental_company']} at {car['price']} rupees/day")
@@ -258,73 +263,7 @@ class MainWindow(customtkinter.CTk):
             tree.insert("", "end", values=tuple(record.values()))
 
     def view_packages(self):
-        # Placeholder Data
-        car_data = [
-            {"Model": "Toyota Corolla", "Price": 500, "Rental Company": "Hertz", "Duration": 7},
-            {"Model": "Honda Civic", "Price": 450, "Rental Company": "Avis", "Duration": 5},
-            {"Model": "Ford Mustang", "Price": 700, "Rental Company": "Enterprise", "Duration": 3},
-        ] * 3  # Tripled for demo
-
-        flight_data = [
-            {"Flight No": "AI101", "Price": 1200, "Source": "NYC", "Destination": "LAX", "Date": "2024-12-10"},
-            {"Flight No": "BA205", "Price": 900, "Source": "LAX", "Destination": "London", "Date": "2024-12-12"},
-            {"Flight No": "DL300", "Price": 950, "Source": "Atlanta", "Destination": "Chicago", "Date": "2024-12-15"},
-        ] * 3  # Tripled for demo
-
-        hotel_data = [
-            {"Hotel Name": "Hilton", "Price": 300, "City": "New York", "Duration (days)": 3},
-            {"Hotel Name": "Marriott", "Price": 250, "City": "Los Angeles", "Duration (days)": 2},
-            {"Hotel Name": "Hyatt", "Price": 400, "City": "Chicago", "Duration (days)": 4},
-        ] * 3  # Tripled for demo
-
-        # Create a new Toplevel window
-        booked_items_window = customtkinter.CTkToplevel(self)
-        booked_items_window.title("Your Booked Items")
-        booked_items_window.geometry("700x500")
-
-        # Create a Tabview for Cars, Flights, and Hotels
-        tabview = customtkinter.CTkTabview(booked_items_window)
-        tabview.pack(fill="both", expand=True, padx=10, pady=10)
-
-        # Add Tabs
-        cars_tab = tabview.add("Cars")
-        flights_tab = tabview.add("Flights")
-        hotels_tab = tabview.add("Hotels")
-
-        # Populate Each Tab
-        self.populate_tab(cars_tab, car_data, ["Model", "Price", "Rental Company", "Duration"])
-        self.populate_tab(flights_tab, flight_data, ["Flight No", "Price", "Source", "Destination", "Date"])
-        self.populate_tab(hotels_tab, hotel_data, ["Hotel Name", "Price", "City", "Duration (days)"])
-
-        back_button = customtkinter.CTkButton(
-            booked_items_window,
-            text="Back",
-            command=booked_items_window.destroy,
-            font = ("Roboto", 16)
-        )        
-        back_button.place(x = 0, y = 0)
-
-    def go_back(self):
-    #    if self.current_page == 2:
-    #     self.current_page = 1
-    #     self.label.configure(text="Page 1")
-    #     self.update_buttons()
-        pass
-
-    def go_forward(self):
-        # if self.current_page == 1:
-        #     self.current_page = 2
-        #     self.label.configure(text="Page 2")
-        # self.update_buttons()
-        pass
-
-    def update_buttons(self):
-        if self.current_page == 1:
-            self.back_button.configure(state="disabled")
-            self.forward_button.configure(state="normal")
-        else:
-            self.back_button.configure(state="normal")
-            self.forward_button.configure(state="disabled")
+        view_pckg = ViewPackage
 
     def view_cart(self):
         print("View Cart clicked!")

@@ -1,3 +1,6 @@
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 import customtkinter
 from Classes.UserManager import UserManager
 from Windows.MainWindow import MainWindow
@@ -14,7 +17,19 @@ class RegisterWindow(customtkinter.CTk):
         register_window.title("Register")
 
         register_window.grid_columnconfigure(0, weight=1)
+        header_frame = customtkinter.CTkFrame(register_window, height=50, corner_radius=0)
+        header_frame.grid(row=0, column=0, sticky="ew")
+        header_frame.grid_columnconfigure(0, weight=1)
 
+        back_button = customtkinter.CTkButton(
+            header_frame,
+            text="Back to Login",
+            command=register_window.destroy,  # Close Register window and show login page
+            width=100,
+            fg_color="red",
+            hover_color="darkred",
+        )
+        back_button.grid(row=0, column=1, padx=10, pady=5, sticky="e")        
         register_label = customtkinter.CTkLabel(register_window, text="Register a New Account", font=("Arial", 16))
         register_label.grid(row=0, column=0, pady=(20, 10))
 

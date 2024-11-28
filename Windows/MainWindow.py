@@ -4,7 +4,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 import customtkinter
 from Classes.UserManager import UserManager
 from PIL import Image, ImageTk
-
+from tkinter import ttk
 
 class MainWindow(customtkinter.CTk):
     def __init__(self, db, parent, packages_col):
@@ -91,6 +91,9 @@ class MainWindow(customtkinter.CTk):
         search_button = customtkinter.CTkButton(tab, text=f"Search {tab_type}", command=callback)
         search_button.grid(row=3, column=0, padx=10, pady=10)
 
+        self.view_packages_button = customtkinter.CTkButton(tab,text = "View Packages",command = self.view_packages)
+        self.view_packages_button.grid(row = 3,column = 1,padx = 10,pady = (0,0))
+
     def add_hotels_tab_content(self, tab):
         tab.grid_columnconfigure(0, weight=1)
         tab.grid_columnconfigure(1, weight=0)
@@ -117,6 +120,9 @@ class MainWindow(customtkinter.CTk):
             tab, text="Search Hotels", command=self.search_hotels
         )
         search_button.grid(row=2, column=0, padx=10, pady=10)
+
+        self.view_packages_button = customtkinter.CTkButton(tab,text = "View Packages",command = self.view_packages)
+        self.view_packages_button.grid(row = 3,column = 1 ,padx = 10,pady = (0,0))
 
     def search_cars(self):
 
@@ -169,7 +175,63 @@ class MainWindow(customtkinter.CTk):
         self.parent.deiconify()
         self.destroy()
 
+    def populate_tab(self, tab, data, headers):
+        # Create Treeview for the data
+        tree = ttk.Treeview(tab, columns=headers, show="headings", height=10)
+        tree.pack(fill="both", expand=True, padx=10, pady=10)
+
+        # Add Scrollbar for the Treeview
+        scrollbar = ttk.Scrollbar(tab, orient="vertical", command=tree.yview)
+        tree.configure(yscrollcommand=scrollbar.set)
+        scrollbar.pack(side="right", fill="y")
+
+        # Set the column headers
+        for header in headers:
+            tree.heading(header, text=header)
+            tree.column(header, anchor="center")
+
+        # Add rows to the Treeview
+        for record in data:
+            tree.insert("", "end", values=tuple(record.values()))
+
+    def view_packages(self):
+        # Placeholder Data
+        car_data = [
+            {"Model": "Toyota Corolla", "Price": 500, "Rental Company": "Hertz", "Duration": 7},
+            {"Model": "Honda Civic", "Price": 450, "Rental Company": "Avis", "Duration": 5},
+            {"Model": "Ford Mustang", "Price": 700, "Rental Company": "Enterprise", "Duration": 3},
+        ] * 3  # Tripled for demo
+
+        flight_data = [
+            {"Flight No": "AI101", "Price": 1200, "Source": "NYC", "Destination": "LAX", "Date": "2024-12-10"},
+            {"Flight No": "BA205", "Price": 900, "Source": "LAX", "Destination": "London", "Date": "2024-12-12"},
+            {"Flight No": "DL300", "Price": 950, "Source": "Atlanta", "Destination": "Chicago", "Date": "2024-12-15"},
+        ] * 3  # Tripled for demo
+
+        hotel_data = [
+            {"Hotel Name": "Hilton", "Price": 300, "City": "New York", "Duration (days)": 3},
+            {"Hotel Name": "Marriott", "Price": 250, "City": "Los Angeles", "Duration (days)": 2},
+            {"Hotel Name": "Hyatt", "Price": 400, "City": "Chicago", "Duration (days)": 4},
+        ] * 3  # Tripled for demo
+
+        # Create a new Toplevel window
+        booked_items_window = customtkinter.CTkToplevel(self)
+        booked_items_window.title("Your Booked Items")
+        booked_items_window.geometry("700x500")
+
+        # Create a Tabview for Cars, Flights, and Hotels
+        tabview = customtkinter.CTkTabview(booked_items_window)
+        tabview.pack(fill="both", expand=True, padx=10, pady=10)
+
+        # Add Tabs
+        cars_tab = tabview.add("Cars")
+        flights_tab = tabview.add("Flights")
+        hotels_tab = tabview.add("Hotels")
+
+        # Populate Each Tab
+        self.populate_tab(cars_tab, car_data, ["Model", "Price", "Rental Company", "Duration"])
+        self.populate_tab(flights_tab, flight_data, ["Flight No", "Price", "Source", "Destination", "Date"])
+        self.populate_tab(hotels_tab, hotel_data, ["Hotel Name", "Price", "City", "Duration (days)"])
+
     def view_cart(self):
         print("View Cart clicked!")
-
-

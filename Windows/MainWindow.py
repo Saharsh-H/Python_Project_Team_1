@@ -30,33 +30,16 @@ class MainWindow(customtkinter.CTk):
         self.header_frame.grid_columnconfigure(1, weight=0)  # Logout Button
         self.header_frame.grid_columnconfigure(2, weight=0)  # View Cart Button
 
-        self.back_button = customtkinter.CTkButton(
-            self.header_frame, 
-            text="Back",
-            width = 100,
-            command=self.go_back,
-        )
-        self.back_button.grid(row = 0, column = 0, padx = 10, pady=10, sticky="w")
+        
 
-        # self.forward_button = customtkinter.CTkButton(self.button_frame, text="Forward", command=self.go_forward)
-        # self.forward_button.grid(row = 0, column = 1)
-
-        self.logout_button = customtkinter.CTkButton(
-            self.header_frame,
-            text="Logout",
-            command=self.logout,
-            width=100,
-            fg_color="red",
-            hover_color="darkred",
-        )
-        self.logout_button.grid(row=0, column=2, padx=10, pady=10, sticky="ne")
+        
 
         self.duration = customtkinter.CTkLabel(
             self.header_frame,
             text="Duration",
             width=100,
         )
-        self.label.grid(row=0, column=2, padx=10, pady=10, sticky="ne")
+        self.duration.grid(row=0, column=2, padx=10, pady=10, sticky="ne")
 
         self.cart_button = customtkinter.CTkButton(
             self.header_frame,
@@ -86,7 +69,8 @@ class MainWindow(customtkinter.CTk):
 
     def add_tab_content(self, tab, tab_type, callback):
         tab.grid_columnconfigure(0, weight=1)
-        tab.grid_columnconfigure(1, weight=0)  
+        tab.grid_columnconfigure(1, weight=0)
+
         logout_button = customtkinter.CTkButton(
             tab,
             text="Logout",
@@ -96,6 +80,7 @@ class MainWindow(customtkinter.CTk):
             hover_color="darkred", 
         )
         logout_button.grid(row=0, column=1, padx=10, pady=(0, 0), sticky="ne")
+
         source_entry = customtkinter.CTkEntry(
             tab, placeholder_text=f"{tab_type} Source", height=50, width=250
         )
@@ -164,6 +149,42 @@ class MainWindow(customtkinter.CTk):
         self.results_frame.grid_columnconfigure(0, weight=3)
         self.results_frame.grid_columnconfigure(1, weight=1)
 
+        description = customtkinter.CTkLabel(
+            self.results_frame,
+            text = "Description",
+            anchor="w", 
+            justify="left",
+            font = ("Roboto", 20, "bold")
+        )
+        description.grid(row=0, column=0, padx=10, pady=5, sticky="w")
+
+        Add_1_Day = customtkinter.CTkLabel(
+            self.results_frame,
+            text = "Add 1 Day",
+            anchor="e", 
+            justify="right",
+            font = ("Roboto", 20, "bold")
+        )
+        Add_1_Day.grid(row=0, column=1, padx=10, pady=5, sticky="w")
+
+        Delete_1_Day = customtkinter.CTkLabel(
+            self.results_frame,
+            text = "Delete 1 Day",
+            anchor="e", 
+            justify="right",
+            font = ("Roboto", 20, "bold")
+        )
+        Delete_1_Day.grid(row=0, column=2, padx=10, pady=5, sticky="w")
+
+        Total_Duration = customtkinter.CTkLabel(
+            self.results_frame,
+            text = "Total Duration",
+            anchor="e", 
+            justify="right",
+            font = ("Roboto", 20, "bold")
+        )
+        Total_Duration.grid(row=0, column=3, padx=10, pady=5, sticky="w")
+
         for index, car in enumerate(car_data["cars"]):
             print(f"{index}: {car}")
             car_details = (
@@ -175,21 +196,30 @@ class MainWindow(customtkinter.CTk):
             car_label = customtkinter.CTkLabel(
                 self.results_frame, text=car_details, anchor="w", justify="left"
             )
-            car_label.grid(row=index, column=0, padx=10, pady=5, sticky="w")
+            car_label.grid(row = index + 1, column=0, padx=10, pady=5, sticky="w")
 
             book_button = customtkinter.CTkButton(
                 self.results_frame,
                 text="Add",
                 command=lambda c=car: self.book_car(c),
             )
-            book_button.grid(row=index, column=1, padx=10, pady=5)
+            book_button.grid(row = index + 1, column=1, padx=10, pady=5)
 
             delete_button = customtkinter.CTkButton(
                 self.results_frame,
                 text="Delete",
                 command=lambda c=car: self.delete_car(c),
             )
-            delete_button.grid(row=index, column=2, padx=10, pady=5)
+            delete_button.grid(row = index + 1, column=2, padx=10, pady=5)
+
+            Duration = customtkinter.CTkLabel(
+            self.results_frame,
+            text = "0" + " Days",
+            anchor="e", 
+            justify="right",
+            font = ("Roboto", 20, "bold")
+            )
+            Duration.grid(row = index + 1, column=3, padx=10, pady=5, sticky="w")
 
     def book_car(self, car):
         print(f"Booking car: {car['car_model']} from {car['rental_company']} at {car['price']} rupees/day")
@@ -265,6 +295,14 @@ class MainWindow(customtkinter.CTk):
         self.populate_tab(cars_tab, car_data, ["Model", "Price", "Rental Company", "Duration"])
         self.populate_tab(flights_tab, flight_data, ["Flight No", "Price", "Source", "Destination", "Date"])
         self.populate_tab(hotels_tab, hotel_data, ["Hotel Name", "Price", "City", "Duration (days)"])
+
+        back_button = customtkinter.CTkButton(
+            booked_items_window,
+            text="Back",
+            command=booked_items_window.destroy,
+            font = ("Roboto", 16)
+        )        
+        back_button.place(x = 0, y = 0)
 
     def go_back(self):
     #    if self.current_page == 2:

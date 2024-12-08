@@ -184,7 +184,8 @@ class MainWindow(customtkinter.CTk):
                                                       fg_color="red", anchor="center")
             no_results_label.grid(row=0, column=0, padx=10, pady=10, sticky="nsew")
             return
-        self.success_label = customtkinter.CTkLabel(cars_tab, text="", fg_color="green", height=30)
+        self.success_label_car = customtkinter.CTkLabel(cars_tab, text="", fg_color="green", height=30)
+        
 
         canvas = customtkinter.CTkCanvas(self.results_frame, bg="white", highlightthickness=0)
         canvas.grid(row=0, column=0, sticky="nsew")
@@ -291,9 +292,9 @@ class MainWindow(customtkinter.CTk):
         else:
             self.added_packages["Cars"].append(car)
 
-        self.success_label.configure(text="Car added to package successfully", fg_color="green")
-        self.success_label.grid()  # Show the success label
-        self.after(3000, lambda: self.success_label.grid_remove())
+        self.success_label_car.configure(text="Car added to package successfully", fg_color="green")
+        self.success_label_car.grid()  # Show the success label
+        self.after(3000, lambda: self.success_label_car.grid_remove())
 
     def delete_car(self, car):
         print(f"Deleting car: {car['car_model']} from {car['rental_company']} at {car['price']} rupees/day")
@@ -396,6 +397,8 @@ class MainWindow(customtkinter.CTk):
                 text="Add to package",
                 command=lambda f=flight: self.add_to_package("Flights", f)
             ).grid(row=index, column=1, padx=10, pady=5, sticky="ew")
+        
+        self.success_label = customtkinter.CTkLabel(flights_tab, text="", fg_color="green", height=30)
 
     def search_hotels(self):
         hotels_tab = self.main_window.tab_view.tab("Hotels")
@@ -515,6 +518,8 @@ class MainWindow(customtkinter.CTk):
                 text="Add to package",
                 command=lambda h=hotel_id, lbl=duration_label: self.add_hotel_to_package(h, lbl)
             ).grid(row=index, column=4, padx=10, pady=5, sticky="ew")
+
+        self.success_label= customtkinter.CTkLabel(hotels_tab, text="", fg_color="green", height=30)
 
     def logout(self):
         print("Logout clicked!")

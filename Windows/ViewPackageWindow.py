@@ -1,5 +1,5 @@
 import customtkinter
-import uuid  # For generating unique package IDs
+import uuid
 
 
 class ViewPackageWindow(customtkinter.CTkToplevel):
@@ -12,15 +12,14 @@ class ViewPackageWindow(customtkinter.CTkToplevel):
         self.added_packages = added_packages
         self.main_window = main_window
 
-        # Safely fetch booked packages
         user_data = self.users_col.find_one({"_id": self.user}) or {}
         self.booked_packages = user_data.get("packages", [])
         if not isinstance(self.booked_packages, list):
-            self.booked_packages = []  # Ensure it is a list
+            self.booked_packages = []
 
         self.lift()
         self.title("Your Packages")
-        self.geometry("600x500")  # Adjust height for button placement
+        self.geometry("600x500")
         self.grid_columnconfigure(0, weight=1)
         self.grid_rowconfigure(0, weight=1)
 
@@ -33,11 +32,10 @@ class ViewPackageWindow(customtkinter.CTkToplevel):
         self.tab_view.grid_columnconfigure(0, weight=1)
         self.tab_view.grid_rowconfigure(0, weight=1)
 
-        # Frame for "View Packages" tab with scrollbar
         self.view_packages_canvas = customtkinter.CTkCanvas(
             self.view_packages_tab,
             highlightthickness=0,
-            bg="grey20",  # Match the theme's foreground color
+            bg="grey20",
         )
         self.view_packages_scrollbar = customtkinter.CTkScrollbar(
             self.view_packages_tab, command=self.view_packages_canvas.yview
@@ -48,7 +46,7 @@ class ViewPackageWindow(customtkinter.CTkToplevel):
         self.view_packages_canvas.pack(side="left", fill="both", expand=True)
 
         self.packages_frame = customtkinter.CTkFrame(
-            self.view_packages_canvas, fg_color="grey20"  # Match theme
+            self.view_packages_canvas, fg_color="grey20"
         )
         self.view_packages_canvas.create_window((0, 0), window=self.packages_frame, anchor="nw")
 
@@ -58,20 +56,17 @@ class ViewPackageWindow(customtkinter.CTkToplevel):
 
         self.display_packages(self.packages_frame, added_packages, "View Packages")
 
-        # Add a "Book Now" button to the bottom center
         self.book_now_button = customtkinter.CTkButton(
             self, text="Book Now", command=self.book_now, width=200
         )
         self.book_now_button.grid(row=1, column=0, pady=10)
 
-        # Initially update the "Book Now" button state
         self.update_book_now_button_state()
 
-        # Frame for "Booked Packages" tab with scrollbar
         self.booked_packages_canvas = customtkinter.CTkCanvas(
             self.booked_packages_tab,
             highlightthickness=0,
-            bg="grey20",  # Match the theme's foreground color
+            bg="grey20",
         )
         self.booked_packages_scrollbar = customtkinter.CTkScrollbar(
             self.booked_packages_tab, command=self.booked_packages_canvas.yview
@@ -82,7 +77,7 @@ class ViewPackageWindow(customtkinter.CTkToplevel):
         self.booked_packages_canvas.pack(side="left", fill="both", expand=True)
 
         self.booked_frame = customtkinter.CTkFrame(
-            self.booked_packages_canvas, fg_color="grey20"  # Match theme
+            self.booked_packages_canvas, fg_color="grey20"
         )
         self.booked_packages_canvas.create_window((0, 0), window=self.booked_frame, anchor="nw")
 
@@ -93,26 +88,23 @@ class ViewPackageWindow(customtkinter.CTkToplevel):
         self.display_packages(self.booked_frame, self.booked_packages, "Booked Packages")
 
     def update_book_now_button_state(self):
-        """Enable or disable the Book Now button based on added_packages."""
         if self.added_packages:
             self.book_now_button.configure(state="normal")
         else:
             self.book_now_button.configure(state="disabled")
 
     def display_packages(self, frame, packages, tab_name):
-        # Clear any previous content
         for widget in frame.winfo_children():
             widget.destroy()
 
         if not packages:
-            # Display a message if no packages are present
             customtkinter.CTkLabel(
                 frame, text=f"No {tab_name.lower()} yet.", font=("Roboto", 14)
             ).grid(row=0, column=0, padx=10, pady=10, sticky="ew")
             return
 
         row = 0
-        if isinstance(packages, list):  # Handle list of packages for "Booked Packages"
+        if isinstance(packages, list):
             for package in packages:
                 package_id = package.get("package_id", "Unknown Package ID")
                 customtkinter.CTkLabel(
@@ -121,7 +113,7 @@ class ViewPackageWindow(customtkinter.CTkToplevel):
                 row += 1
 
                 for category, items in package.items():
-                    if category != "package_id" and items:  # Skip package_id and empty categories
+                    if category != "package_id" and items:
                         customtkinter.CTkLabel(
                             frame, text=f"{category.capitalize()}:", font=("Roboto", 14, "bold")
                         ).grid(row=row, column=0, padx=10, pady=(10, 5), sticky="w")
@@ -133,8 +125,8 @@ class ViewPackageWindow(customtkinter.CTkToplevel):
                                 frame, text=item_details, anchor="w", justify="left"
                             ).grid(row=row, column=0, padx=10, pady=(0, 10), sticky="ew")
                             row += 1
-        elif isinstance(packages, dict):  # Handle dictionary of categories for "View Packages"
-            if isinstance(packages, dict):  # Handle dictionary of categories for "View Packages"
+        elif isinstance(packages, dict):
+            if isinstance(packages, dict):
                 for category, items in packages.items():
                     if items:
                         customtkinter.CTkLabel(
@@ -148,7 +140,6 @@ class ViewPackageWindow(customtkinter.CTkToplevel):
                                 frame, text=item_details, anchor="w", justify="left"
                             ).grid(row=row, column=0, padx=10, pady=(0, 10), sticky="ew")
 
-                            # Add "Remove Package" button in red
                             customtkinter.CTkButton(
                                 frame,
                                 text="Remove",
@@ -160,15 +151,12 @@ class ViewPackageWindow(customtkinter.CTkToplevel):
                             row += 1
 
     def remove_from_package(self, category, item):
-        """Remove a specific item from the current package."""
         if category in self.added_packages and item in self.added_packages[category]:
-            self.added_packages[category].remove(item)  # Remove the item from the package
+            self.added_packages[category].remove(item)
             print(f"Removed item from {category}: {item}")
 
-            # Refresh the "View Packages" tab
             self.display_packages(self.packages_frame, self.added_packages, "View Packages")
 
-            # Update the "Book Now" button state
             self.update_book_now_button_state()
 
     def format_item_details(self, item, category):
@@ -208,17 +196,13 @@ class ViewPackageWindow(customtkinter.CTkToplevel):
         # Generate a unique package ID
         package_id = str(uuid.uuid4())
 
-        # Initialize the new package structure
         new_package = {"package_id": package_id, "Cars": [], "Hotels": [], "Flights": []}
 
-        # Populate the new package with items from added_packages
         for category, items in self.added_packages.items():
             if category in new_package:
-                new_package[category].extend(items)  # Add items to the respective category
+                new_package[category].extend(items)
 
-            # Process each item in the category
             for item in items:
-                # Decrement availability based on category
                 if category.lower() == "flights":
                     result = self.packages_col.update_one(
                         {"_id": category, f"flights._id": item["_id"]},
@@ -239,18 +223,16 @@ class ViewPackageWindow(customtkinter.CTkToplevel):
                     else:
                         print(f"Failed to reduce rooms for hotel: {item['_id']}")
 
-                # Remove the booked item from the respective category in packages_col
                 else:
                     self.packages_col.update_one(
                         {"_id": category},
                         {"$pull": {category.lower(): {"_id": item["_id"]}}}
                 )
 
-        # Update the user's document in the database
         result = self.users_col.update_one(
             {"_id": self.user},
-            {"$push": {"packages": new_package}},  # Push the new package into the packages array
-            upsert=True  # Create the user's document if it doesn't exist
+            {"$push": {"packages": new_package}},
+            upsert=True
         )
 
         if result.modified_count > 0:
@@ -258,18 +240,14 @@ class ViewPackageWindow(customtkinter.CTkToplevel):
         else:
             print("Failed to book the package.")
 
-        # Clear the added_packages dictionary
         self.added_packages.clear()
         print("Added packages cleared.")
 
         self.main_window.refresh_tab_views()
-        # Refresh the "View Packages" tab
         self.display_packages(self.packages_frame, self.added_packages, "View Packages")
 
-        # Refresh the "Booked Packages" tab
         self.booked_packages = self.users_col.find_one({"_id": self.user}).get("packages", [])
         self.display_packages(self.booked_frame, self.booked_packages, "Booked Packages")
 
-        # Update the "Book Now" button state
         self.update_book_now_button_state()
 

@@ -3,8 +3,13 @@ This app is a travel booking system that allows users to search for and book fli
 
 ## How to use the app
     Step 1: Open the main.py file and click on "Run".
-    Step 2: Create an account by clicking on the register button.
-    Step 3: Enter the same credentials in the login page that you used while registering.
+    Step 2: Create an account by clicking on the "Register" button.
+    Step 3: Enter the same credentials in the login page that you used while registering and click on the "Login" button.
+    Step 4: Browse through the tabs and add cars, flights and hotels to your package.
+    Step 5: Click on the view packages button to view your packages.
+    Step 6: In the view packages window, review your package and finally choose to book your package.
+    
+    PS: At any time you can press the "logout" button to exit the app.
 
 ## List of supported Operating Systems
 * Windows

@@ -185,9 +185,8 @@ class MainWindow(customtkinter.CTk):
             no_results_label.grid(row=0, column=0, padx=10, pady=10, sticky="nsew")
             return
         self.success_label_car = customtkinter.CTkLabel(cars_tab, text="", fg_color="green", height=30)
-        
 
-        canvas = customtkinter.CTkCanvas(self.results_frame, bg="white", highlightthickness=0)
+        canvas = customtkinter.CTkCanvas(self.results_frame, bg="grey20", highlightthickness=0)
         canvas.grid(row=0, column=0, sticky="nsew")
 
         scrollbar = ttk.Scrollbar(self.results_frame, orient="vertical", command=canvas.yview)
@@ -207,6 +206,17 @@ class MainWindow(customtkinter.CTk):
 
         canvas.bind("<Configure>", resize_canvas)
         canvas.configure(bg="grey20")
+
+        # Bind mouse wheel for scrolling (for both Windows and Linux)
+        def on_mouse_wheel(event):
+            if event.delta:  # For Windows
+                canvas.yview_scroll(int(-1*(event.delta/120)), "units")
+            else:  # For Linux
+                canvas.yview_scroll(-1*(event.num-5), "units")
+
+        canvas.bind_all("<MouseWheel>", on_mouse_wheel)  # For Windows
+        canvas.bind_all("<Button-4>", on_mouse_wheel)  # For Linux (scroll up)
+        canvas.bind_all("<Button-5>", on_mouse_wheel)  # For Linux (scroll down)
 
         scrollable_frame.grid_columnconfigure(0, weight=3)
         scrollable_frame.grid_columnconfigure(1, weight=1)
@@ -347,7 +357,7 @@ class MainWindow(customtkinter.CTk):
                                                       anchor="center")
             no_results_label.grid(row=0, column=0, padx=10, pady=10, sticky="nsew")
             return
-        canvas = customtkinter.CTkCanvas(self.results_frame_flights, bg="white", highlightthickness=0)
+        canvas = customtkinter.CTkCanvas(self.results_frame_flights, bg="grey20", highlightthickness=0)
         canvas.grid(row=0, column=0, sticky="nsew")
 
         scrollbar = ttk.Scrollbar(self.results_frame_flights, orient="vertical", command=canvas.yview)
@@ -366,6 +376,17 @@ class MainWindow(customtkinter.CTk):
             canvas.itemconfig(scrollable_frame_window, width=canvas_width)
 
         canvas.bind("<Configure>", resize_canvas)
+
+        # Bind mouse wheel for scrolling (for both Windows and Linux)
+        def on_mouse_wheel(event):
+            if event.delta:  # For Windows
+                canvas.yview_scroll(int(-1*(event.delta/120)), "units")
+            else:  # For Linux
+                canvas.yview_scroll(-1*(event.num-5), "units")
+
+        canvas.bind_all("<MouseWheel>", on_mouse_wheel)  # For Windows
+        canvas.bind_all("<Button-4>", on_mouse_wheel)  # For Linux (scroll up)
+        canvas.bind_all("<Button-5>", on_mouse_wheel)  # For Linux (scroll down)
 
         scrollable_frame.grid_columnconfigure(0, weight=3)
         scrollable_frame.grid_columnconfigure(1, weight=1)
@@ -397,7 +418,7 @@ class MainWindow(customtkinter.CTk):
                 text="Add to package",
                 command=lambda f=flight: self.add_to_package("Flights", f)
             ).grid(row=index, column=1, padx=10, pady=5, sticky="ew")
-        
+    
         self.success_label = customtkinter.CTkLabel(flights_tab, text="", fg_color="green", height=30)
 
     def search_hotels(self):
@@ -437,7 +458,7 @@ class MainWindow(customtkinter.CTk):
                                                       anchor="center")
             no_results_label.grid(row=0, column=0, padx=10, pady=10, sticky="nsew")
             return
-        canvas = customtkinter.CTkCanvas(self.results_frame_hotels, bg="white", highlightthickness=0)
+        canvas = customtkinter.CTkCanvas(self.results_frame_hotels, bg="grey20", highlightthickness=0)
         canvas.grid(row=0, column=0, sticky="nsew")
 
         scrollbar = ttk.Scrollbar(self.results_frame_hotels, orient="vertical", command=canvas.yview)
@@ -456,6 +477,17 @@ class MainWindow(customtkinter.CTk):
             canvas.itemconfig(scrollable_frame_window, width=canvas_width)
 
         canvas.bind("<Configure>", resize_canvas)
+
+        # Bind mouse wheel for scrolling (for both Windows and Linux)
+        def on_mouse_wheel(event):
+            if event.delta:  # For Windows
+                canvas.yview_scroll(int(-1*(event.delta/120)), "units")
+            else:  # For Linux
+                canvas.yview_scroll(-1*(event.num-5), "units")
+
+        canvas.bind_all("<MouseWheel>", on_mouse_wheel)  # For Windows
+        canvas.bind_all("<Button-4>", on_mouse_wheel)  # For Linux (scroll up)
+        canvas.bind_all("<Button-5>", on_mouse_wheel)  # For Linux (scroll down)
 
         scrollable_frame.grid_columnconfigure(0, weight=3)
         scrollable_frame.grid_columnconfigure(1, weight=1)

@@ -16,7 +16,6 @@ class MainWindow(customtkinter.CTk):
         self.added_packages = added_packages
         self.package_col = packages_col
         parent.withdraw()
-        self.current_page = 1
         self.source_entry = None
         self.destination_entry = None
         main_window = customtkinter.CTkToplevel(self)
@@ -195,6 +194,17 @@ class MainWindow(customtkinter.CTk):
             canvas.itemconfig(scrollable_frame_window, width=canvas_width)
 
         canvas.bind("<Configure>", resize_canvas)
+
+        # Bind mouse wheel for scrolling (for both Windows and Linux)
+        def on_mouse_wheel(event):
+            if event.delta:  # For Windows
+                canvas.yview_scroll(int(-1*(event.delta/120)), "units")
+            else:  # For Linux
+                canvas.yview_scroll(-1*(event.num-5), "units")
+
+        canvas.bind_all("<MouseWheel>", on_mouse_wheel)  # For Windows
+        canvas.bind_all("<Button-4>", on_mouse_wheel)  # For Linux (scroll up)
+        canvas.bind_all("<Button-5>", on_mouse_wheel)  # For Linux (scroll down)
 
         # Configure grid for the scrollable frame
         scrollable_frame.grid_columnconfigure(0, weight=3)

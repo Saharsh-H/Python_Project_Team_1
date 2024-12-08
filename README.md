@@ -1,5 +1,5 @@
 # Travel Booking System
-    This app is a travel booking system that allows users to search for and book flights, hotels and rental cars. This app is written using Python.
+This app is a travel booking system that allows users to search for and book flights, hotels and rental cars. This app is written using Python.
 
 # How to use the app
     Step 1: Open the main.py file and click on "Run".

@@ -16,6 +16,13 @@ class MainWindow(customtkinter.CTk):
         self.added_packages = added_packages
         self.package_col = packages_col
         parent.withdraw()
+        if not self.added_packages:
+            self.added_packages = {
+                "Cars": [],
+                "Flights": [],
+                "Hotels": []
+            }
+        self.current_page = 1
         self.source_entry = None
         self.destination_entry = None
         main_window = customtkinter.CTkToplevel(self)
@@ -26,11 +33,12 @@ class MainWindow(customtkinter.CTk):
         main_window.grid_rowconfigure(0, weight=0)
         main_window.grid_rowconfigure(1, weight=1)
         self.main_window = main_window
+        self.success_label = customtkinter.CTkLabel(self.main_window, text="", fg_color="green", height=30)
         self.header_frame = customtkinter.CTkFrame(main_window, height=50, corner_radius=0)
         self.header_frame.grid(row=0, column=0, sticky="ew")
-        self.header_frame.grid_columnconfigure(1, weight=0)  # Logout Button
-        self.header_frame.grid_columnconfigure(2, weight=0)  # View Cart Button
-        self.entries = {}  # Dictionary to store input widgets for each tab
+        self.header_frame.grid_columnconfigure(1, weight=0)
+        self.header_frame.grid_columnconfigure(2, weight=0)
+        self.entries = {}
 
         self.duration = customtkinter.CTkLabel(
             self.header_frame,
@@ -38,6 +46,9 @@ class MainWindow(customtkinter.CTk):
             width=100,
         )
         self.duration.grid(row=0, column=2, padx=10, pady=10, sticky="ne")
+
+        self.success_label.grid(row=2, column=0, padx=10, pady=5, sticky="ew")
+        self.success_label.grid_remove()
 
         main_window.tab_view = customtkinter.CTkTabview(main_window)
         main_window.tab_view.grid(row=0, column=0, sticky="nsew", padx=10, pady=10)
@@ -57,13 +68,13 @@ class MainWindow(customtkinter.CTk):
             tab.grid_columnconfigure(0, weight=1)
             tab.grid_rowconfigure(2, weight=1)
 
-        self.car_durations = {}  # Dictionary to store durations for each car
+        self.car_durations = {}
 
     def add_tab_content(self, tab, tab_type, callback):
         tab.grid_columnconfigure(0, weight=1)
         tab.grid_columnconfigure(1, weight=0)
 
-        self.entries[tab_type] = {}  # Initialize entries for this tab
+        self.entries[tab_type] = {}
 
         logout_button = customtkinter.CTkButton(
             tab,
@@ -79,13 +90,13 @@ class MainWindow(customtkinter.CTk):
             tab, placeholder_text=f"{tab_type} Source", height=50, width=250
         )
         source_entry.grid(row=0, column=0, sticky="ew", padx=10, pady=(10, 5))
-        self.entries[tab_type]['source'] = source_entry  # Store source entry
+        self.entries[tab_type]['source'] = source_entry
 
         destination_entry = customtkinter.CTkEntry(
             tab, placeholder_text=f"{tab_type} Destination", height=50, width=250
         )
         destination_entry.grid(row=1, column=0, sticky="ew", padx=10, pady=(5, 10))
-        self.entries[tab_type]['destination'] = destination_entry  # Store destination entry
+        self.entries[tab_type]['destination'] = destination_entry
 
         date_entry = customtkinter.CTkEntry(
             tab, placeholder_text=f"Travel Date (DD-MM-YYYY)", height=50, width=250
@@ -105,6 +116,8 @@ class MainWindow(customtkinter.CTk):
     def add_hotels_tab_content(self, tab):
         tab.grid_columnconfigure(0, weight=1)
         tab.grid_columnconfigure(1, weight=0)
+
+        self.entries['Hotels'] = {}
         logout_button = customtkinter.CTkButton(
             tab,
             text="Logout",
@@ -118,6 +131,7 @@ class MainWindow(customtkinter.CTk):
             tab, placeholder_text="Enter Location", height=50, width=250
         )
         location_entry.grid(row=0, column=0, sticky="ew", padx=10, pady=(10, 5))
+        self.entries['Hotels']['location'] = location_entry
 
         date_entry = customtkinter.CTkEntry(
             tab, placeholder_text="Enter Check-in Date (DD-MM-YYYY)", height=50, width=250
@@ -158,29 +172,27 @@ class MainWindow(customtkinter.CTk):
                (not destination or car.get("destination", "").lower() == destination.lower())
         ]
 
-        # Create a frame to hold the canvas and scrollbar
         self.results_frame = customtkinter.CTkFrame(cars_tab, corner_radius=10)
         self.results_frame.grid(row=5, column=0, columnspan=2, padx=10, pady=10, sticky="nsew")
 
-        # Configure grid weights to allow resizing
-        cars_tab.grid_rowconfigure(5, weight=1)  # Ensure the results frame grows
+        cars_tab.grid_rowconfigure(5, weight=1)
         cars_tab.grid_columnconfigure(0, weight=1)
         self.results_frame.grid_rowconfigure(0, weight=1)
         self.results_frame.grid_columnconfigure(0, weight=1)
+        if not filtered_cars:
+            no_results_label = customtkinter.CTkLabel(self.results_frame, text="No cars found for your search.",
+                                                      fg_color="red", anchor="center")
+            no_results_label.grid(row=0, column=0, padx=10, pady=10, sticky="nsew")
+            return
+        self.success_label_car = customtkinter.CTkLabel(cars_tab, text="", fg_color="green", height=30)
 
-        # Create a label for success messages
-        self.success_label = customtkinter.CTkLabel(cars_tab, text="", fg_color="green", height=30)
-
-        # Create a canvas for scrolling
-        canvas = customtkinter.CTkCanvas(self.results_frame, bg="white", highlightthickness=0)
+        canvas = customtkinter.CTkCanvas(self.results_frame, bg="grey20", highlightthickness=0)
         canvas.grid(row=0, column=0, sticky="nsew")
 
-        # Add a vertical scrollbar linked to the canvas
         scrollbar = ttk.Scrollbar(self.results_frame, orient="vertical", command=canvas.yview)
         scrollbar.grid(row=0, column=1, sticky="ns")
         canvas.configure(yscrollcommand=scrollbar.set)
 
-        # Create a frame inside the canvas
         scrollable_frame = customtkinter.CTkFrame(canvas)
         scrollable_frame.bind(
             "<Configure>",
@@ -188,12 +200,12 @@ class MainWindow(customtkinter.CTk):
         )
         scrollable_frame_window = canvas.create_window((0, 0), window=scrollable_frame, anchor="nw")
 
-        # Bind canvas resize events to adjust width
         def resize_canvas(event):
             canvas_width = event.width
             canvas.itemconfig(scrollable_frame_window, width=canvas_width)
 
         canvas.bind("<Configure>", resize_canvas)
+        canvas.configure(bg="grey20")
 
         # Bind mouse wheel for scrolling (for both Windows and Linux)
         def on_mouse_wheel(event):
@@ -206,13 +218,11 @@ class MainWindow(customtkinter.CTk):
         canvas.bind_all("<Button-4>", on_mouse_wheel)  # For Linux (scroll up)
         canvas.bind_all("<Button-5>", on_mouse_wheel)  # For Linux (scroll down)
 
-        # Configure grid for the scrollable frame
         scrollable_frame.grid_columnconfigure(0, weight=3)
         scrollable_frame.grid_columnconfigure(1, weight=1)
         scrollable_frame.grid_columnconfigure(2, weight=1)
         scrollable_frame.grid_columnconfigure(3, weight=1)
 
-        # Add headers for the table
         header_style = {"font": ("Roboto", 20, "bold"), "anchor": "center"}
         customtkinter.CTkLabel(scrollable_frame, text="Description", **header_style).grid(
             row=0, column=0, padx=10, pady=5, sticky="ew"
@@ -227,7 +237,6 @@ class MainWindow(customtkinter.CTk):
             row=0, column=4, padx=10, pady=5, sticky="ew"
         )
 
-        # Populate the scrollable frame with data
         for index, car in enumerate(filtered_cars, start=1):
             car_id = car['_id']
             if car_id not in self.car_durations:
@@ -280,14 +289,12 @@ class MainWindow(customtkinter.CTk):
         print(f"Booking car: {car['car_model']} from {car['rental_company']} at {car['price']} rupees/day")
 
     def add_to_pkg(self, car_id, label):
-        carss = self.package_col.find_one({"_id": "Cars"})
-        car = list(filter(lambda car: car["_id"] == car_id, carss["cars"]))[0]
+        cars = self.package_col.find_one({"_id": "Cars"})
+        car = list(filter(lambda c: c["_id"] == car_id, cars["cars"]))[0]
 
         updated_duration = self.car_durations.get(car_id, 0)
         car["duration"] = updated_duration
 
-        print(f"Car package for {car['car_model']} removed from the database.")
-        p = PackageManager(car_id)
         if self.added_packages == dict():
             self.added_packages["Cars"] = [car]
             self.added_packages["Flights"] = []
@@ -295,29 +302,284 @@ class MainWindow(customtkinter.CTk):
         else:
             self.added_packages["Cars"].append(car)
 
-
-
-        # Update the success label
-        self.success_label.configure(text="Added to package successfully", fg_color="green")
-        self.success_label.grid(row=4, column=0, columnspan=2, padx=10, pady=10, sticky="ew")
-        self.after(3000, lambda: self.success_label.grid_forget())  # Hide the label after 3 seconds
+        self.success_label_car.configure(text="Car added to package successfully", fg_color="green")
+        self.success_label_car.grid()  # Show the success label
+        self.after(3000, lambda: self.success_label_car.grid_remove())
 
     def delete_car(self, car):
         print(f"Deleting car: {car['car_model']} from {car['rental_company']} at {car['price']} rupees/day")
 
+    def add_to_package(self, category, item):
+        if category not in self.added_packages:
+            self.added_packages[category] = []
+
+        self.added_packages[category].append(item)
+
+        print(f"Added {category} item to package: {item}")
+
+        # Display success message
+        if hasattr(self, "success_label"):
+            self.success_label.configure(text=f"{category} added to package successfully!", fg_color="green")
+            self.success_label.grid(row=4, column=0, columnspan=2, padx=10, pady=10, sticky="ew")
+            self.after(3000, lambda: self.success_label.grid_forget())
+
     def search_flights(self):
-        print("Search button clicked for Flights!")
+        flights_tab = self.main_window.tab_view.tab("Flights")
+
+        if hasattr(self, "results_frame_flights") and self.results_frame_flights.winfo_exists():
+            self.results_frame_flights.destroy()
+
+        flight_data = self.package_col.find_one({"_id": "Flights"})
+        if not flight_data or "flights" not in flight_data:
+            print("No flight data found!")
+            return
+
+        source = self.entries['Flights']['source'].get().strip()
+        destination = self.entries['Flights']['destination'].get().strip()
+
+        data = flight_data["flights"]
+        filtered_flights = [
+            flight for flight in data
+            if (not source or flight.get("source", "").lower() == source.lower()) and
+               (not destination or flight.get("destination", "").lower() == destination.lower())
+        ]
+
+        self.results_frame_flights = customtkinter.CTkFrame(flights_tab, corner_radius=10)
+        self.results_frame_flights.grid(row=5, column=0, columnspan=2, padx=10, pady=10, sticky="nsew")
+
+        flights_tab.grid_rowconfigure(5, weight=1)
+        flights_tab.grid_columnconfigure(0, weight=1)
+        self.results_frame_flights.grid_rowconfigure(0, weight=1)
+        self.results_frame_flights.grid_columnconfigure(0, weight=1)
+        if not filtered_flights:
+            no_results_label = customtkinter.CTkLabel(self.results_frame_flights,
+                                                      text="No flights found for your search.", fg_color="red",
+                                                      anchor="center")
+            no_results_label.grid(row=0, column=0, padx=10, pady=10, sticky="nsew")
+            return
+        canvas = customtkinter.CTkCanvas(self.results_frame_flights, bg="grey20", highlightthickness=0)
+        canvas.grid(row=0, column=0, sticky="nsew")
+
+        scrollbar = ttk.Scrollbar(self.results_frame_flights, orient="vertical", command=canvas.yview)
+        scrollbar.grid(row=0, column=1, sticky="ns")
+        canvas.configure(yscrollcommand=scrollbar.set)
+        canvas.configure(bg="grey20")
+        scrollable_frame = customtkinter.CTkFrame(canvas)
+        scrollable_frame.bind(
+            "<Configure>",
+            lambda e: canvas.configure(scrollregion=canvas.bbox("all"))
+        )
+        scrollable_frame_window = canvas.create_window((0, 0), window=scrollable_frame, anchor="nw")
+
+        def resize_canvas(event):
+            canvas_width = event.width
+            canvas.itemconfig(scrollable_frame_window, width=canvas_width)
+
+        canvas.bind("<Configure>", resize_canvas)
+
+        # Bind mouse wheel for scrolling (for both Windows and Linux)
+        def on_mouse_wheel(event):
+            if event.delta:  # For Windows
+                canvas.yview_scroll(int(-1*(event.delta/120)), "units")
+            else:  # For Linux
+                canvas.yview_scroll(-1*(event.num-5), "units")
+
+        canvas.bind_all("<MouseWheel>", on_mouse_wheel)  # For Windows
+        canvas.bind_all("<Button-4>", on_mouse_wheel)  # For Linux (scroll up)
+        canvas.bind_all("<Button-5>", on_mouse_wheel)  # For Linux (scroll down)
+
+        scrollable_frame.grid_columnconfigure(0, weight=3)
+        scrollable_frame.grid_columnconfigure(1, weight=1)
+
+        header_style = {"font": ("Roboto", 20, "bold"), "anchor": "center"}
+        customtkinter.CTkLabel(scrollable_frame, text="Description", **header_style).grid(
+            row=0, column=0, padx=10, pady=5, sticky="ew"
+        )
+        customtkinter.CTkLabel(scrollable_frame, text="Add to Package", **header_style).grid(
+            row=0, column=1, padx=10, pady=5, sticky="ew"
+        )
+
+        for index, flight in enumerate(filtered_flights, start=1):
+            flight_details = (
+                f"Airline: {flight['airline']}\n"
+                f"Departure: {flight['departure_time']}\n"
+                f"Duration: {flight['duration']} hours\n"
+                f"Price: {flight['price']} rupees\n"
+                f"Source: {flight['source']}\n"
+                f"Destination: {flight['destination']}\n"
+                f"Seats Available: {flight['seats_available']}\n"
+            )
+            customtkinter.CTkLabel(scrollable_frame, text=flight_details, anchor="w", justify="left").grid(
+                row=index, column=0, padx=10, pady=5, sticky="ew"
+            )
+
+            customtkinter.CTkButton(
+                scrollable_frame,
+                text="Add to package",
+                command=lambda f=flight: self.add_to_package("Flights", f)
+            ).grid(row=index, column=1, padx=10, pady=5, sticky="ew")
+    
+        self.success_label = customtkinter.CTkLabel(flights_tab, text="", fg_color="green", height=30)
 
     def search_hotels(self):
-        print("Search button clicked for Hotels!")
+        hotels_tab = self.main_window.tab_view.tab("Hotels")
+
+        if hasattr(self, "results_frame_hotels") and self.results_frame_hotels.winfo_exists():
+            self.results_frame_hotels.destroy()
+
+        hotel_data = self.package_col.find_one({"_id": "Hotels"})
+        if not hotel_data or "hotels" not in hotel_data:
+            print("No hotel data found!")
+            return
+
+        location_entry = self.entries['Hotels'].get('location', None)
+        location = location_entry.get().strip() if location_entry else ""
+
+        data = hotel_data["hotels"]
+        filtered_hotels = [
+            hotel for hotel in data
+            if not location or hotel.get("destination", "").lower() == location.lower()
+        ]
+
+        self.hotel_durations = {}
+
+        self.results_frame_hotels = customtkinter.CTkFrame(hotels_tab, corner_radius=10)
+        self.results_frame_hotels.grid(row=5, column=0, columnspan=2, padx=10, pady=10, sticky="nsew")
+
+
+
+        hotels_tab.grid_rowconfigure(5, weight=1)
+        hotels_tab.grid_columnconfigure(0, weight=1)
+        self.results_frame_hotels.grid_rowconfigure(0, weight=1)
+        self.results_frame_hotels.grid_columnconfigure(0, weight=1)
+        if not filtered_hotels:
+            no_results_label = customtkinter.CTkLabel(self.results_frame_hotels,
+                                                      text="No hotels found for your search.", fg_color="red",
+                                                      anchor="center")
+            no_results_label.grid(row=0, column=0, padx=10, pady=10, sticky="nsew")
+            return
+        canvas = customtkinter.CTkCanvas(self.results_frame_hotels, bg="grey20", highlightthickness=0)
+        canvas.grid(row=0, column=0, sticky="nsew")
+
+        scrollbar = ttk.Scrollbar(self.results_frame_hotels, orient="vertical", command=canvas.yview)
+        scrollbar.grid(row=0, column=1, sticky="ns")
+        canvas.configure(yscrollcommand=scrollbar.set)
+
+        scrollable_frame = customtkinter.CTkFrame(canvas)
+        scrollable_frame.bind(
+            "<Configure>",
+            lambda e: canvas.configure(scrollregion=canvas.bbox("all"))
+        )
+        scrollable_frame_window = canvas.create_window((0, 0), window=scrollable_frame, anchor="nw")
+        canvas.configure(bg="grey20")
+        def resize_canvas(event):
+            canvas_width = event.width
+            canvas.itemconfig(scrollable_frame_window, width=canvas_width)
+
+        canvas.bind("<Configure>", resize_canvas)
+
+        # Bind mouse wheel for scrolling (for both Windows and Linux)
+        def on_mouse_wheel(event):
+            if event.delta:  # For Windows
+                canvas.yview_scroll(int(-1*(event.delta/120)), "units")
+            else:  # For Linux
+                canvas.yview_scroll(-1*(event.num-5), "units")
+
+        canvas.bind_all("<MouseWheel>", on_mouse_wheel)  # For Windows
+        canvas.bind_all("<Button-4>", on_mouse_wheel)  # For Linux (scroll up)
+        canvas.bind_all("<Button-5>", on_mouse_wheel)  # For Linux (scroll down)
+
+        scrollable_frame.grid_columnconfigure(0, weight=3)
+        scrollable_frame.grid_columnconfigure(1, weight=1)
+        scrollable_frame.grid_columnconfigure(2, weight=1)
+        scrollable_frame.grid_columnconfigure(3, weight=1)
+
+        header_style = {"font": ("Roboto", 20, "bold"), "anchor": "center"}
+        customtkinter.CTkLabel(scrollable_frame, text="Description", **header_style).grid(
+            row=0, column=0, padx=10, pady=5, sticky="ew"
+        )
+        customtkinter.CTkLabel(scrollable_frame, text="Add", **header_style).grid(
+            row=0, column=1, padx=10, pady=5, sticky="ew"
+        )
+        customtkinter.CTkLabel(scrollable_frame, text="Delete", **header_style).grid(
+            row=0, column=2, padx=10, pady=5, sticky="ew"
+        )
+        customtkinter.CTkLabel(scrollable_frame, text="Duration", **header_style).grid(
+            row=0, column=3, padx=10, pady=5, sticky="ew"
+        )
+
+        for index, hotel in enumerate(filtered_hotels, start=1):
+            hotel_id = hotel['_id']
+            if hotel_id not in self.hotel_durations:
+                self.hotel_durations[hotel_id] = 0
+
+            hotel_details = (
+                f"Hotel Name: {hotel['hotel_name']}\n"
+                f"Destination: {hotel['destination']}\n"
+                f"Rating: {hotel['rating']} stars\n"
+                f"Rooms Available: {hotel['rooms_available']}\n"
+                f"Price: {hotel['price']} rupees/day\n"
+            )
+            customtkinter.CTkLabel(scrollable_frame, text=hotel_details, anchor="w", justify="left").grid(
+                row=index, column=0, padx=10, pady=5, sticky="ew"
+            )
+
+            duration_label = customtkinter.CTkLabel(
+                scrollable_frame,
+                text=f"{self.hotel_durations[hotel_id]} Days",
+                anchor="e",
+                justify="right",
+                font=("Roboto", 20, "bold")
+            )
+            duration_label.grid(row=index, column=3, padx=10, pady=5, sticky="ew")
+
+            customtkinter.CTkButton(
+                scrollable_frame,
+                text="Add",
+                command=lambda h=hotel_id, lbl=duration_label: self.update_hotel_duration(h, lbl, 1)
+            ).grid(row=index, column=1, padx=10, pady=5, sticky="ew")
+
+            customtkinter.CTkButton(
+                scrollable_frame,
+                text="Delete",
+                command=lambda h=hotel_id, lbl=duration_label: self.update_hotel_duration(h, lbl, -1)
+            ).grid(row=index, column=2, padx=10, pady=5, sticky="ew")
+
+            customtkinter.CTkButton(
+                scrollable_frame,
+                text="Add to package",
+                command=lambda h=hotel_id, lbl=duration_label: self.add_hotel_to_package(h, lbl)
+            ).grid(row=index, column=4, padx=10, pady=5, sticky="ew")
+
+        self.success_label= customtkinter.CTkLabel(hotels_tab, text="", fg_color="green", height=30)
 
     def logout(self):
         print("Logout clicked!")
         self.parent.deiconify()
         self.destroy()
 
+    def update_hotel_duration(self, hotel_id, label, change):
+        self.hotel_durations[hotel_id] = max(0, self.hotel_durations[hotel_id] + change)
+        label.configure(text=f"{self.hotel_durations[hotel_id]} Days")
+        print(f"Hotel {hotel_id} duration updated to {self.hotel_durations[hotel_id]}")
+
+    def add_hotel_to_package(self, hotel_id, label):
+        hotels = self.package_col.find_one({"_id": "Hotels"})
+        hotel = list(filter(lambda h: h["_id"] == hotel_id, hotels["hotels"]))[0]
+
+        if "Hotels" not in self.added_packages:
+            self.added_packages["Hotels"] = []
+
+        updated_duration = self.hotel_durations.get(hotel_id, 0)
+        hotel["duration"] = updated_duration
+
+        self.added_packages["Hotels"].append(hotel)
+
+        self.success_label.configure(text="Hotel added to package successfully", fg_color="green")
+        self.success_label.grid()
+        self.after(3000, lambda: self.success_label.grid_remove())
+
     def populate_tab(self, tab, data, headers):
-        # Create Treeview for the data
         tree = ttk.Treeview(tab, columns=headers, show="headings", height=10)
         tree.pack(fill="both", expand=True, padx=10, pady=10)
 
@@ -333,11 +595,16 @@ class MainWindow(customtkinter.CTk):
             tree.insert("", "end", values=tuple(record.values()))
 
     def view_packages(self):
-        # Open the ViewPackageWindow popup
         if hasattr(self, 'view_package_window') and self.view_package_window.winfo_exists():
-            self.view_package_window.lift()  # Bring the window to focus if it already exists
+            self.view_package_window.lift()
         else:
-            self.view_package_window = ViewPackageWindow(self, self.db, self.user, self.added_packages)
+            self.view_package_window = ViewPackageWindow(self, self.db, self.user, self.added_packages, self)
 
     def view_cart(self):
         print("View Cart clicked!")
+
+    def refresh_tab_views(self):
+        self.search_cars()
+        self.search_flights()
+        self.search_hotels()
+        print("All tab views refreshed.")

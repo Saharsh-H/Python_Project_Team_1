@@ -24,7 +24,7 @@ class RegisterWindow(customtkinter.CTk):
         back_button = customtkinter.CTkButton(
             header_frame,
             text="Back to Login",
-            command=register_window.destroy,  # Close Register window and show login page
+            command=register_window.destroy,
             width=100,
             fg_color="red",
             hover_color="darkred",

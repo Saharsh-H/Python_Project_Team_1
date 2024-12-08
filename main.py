@@ -5,7 +5,7 @@ import customtkinter
 import pymongo
 from Windows.RegisterWindow import RegisterWindow
 from PIL import Image, ImageTk
-# from Classes.CarManager import CarManager
+from Classes.CarManager import CarManager
 from Windows.MainWindow import MainWindow
 customtkinter.set_appearance_mode("dark")
 customtkinter.set_default_color_theme("dark-blue")
@@ -14,12 +14,14 @@ myclient = pymongo.MongoClient(mongo_path)
 db = myclient["travel_manager"]
 users_col = db["users"]
 packages_col = db["packages"]
-# car = CarManager("car1", 500, 20, "Ecity", "Majestic", "Swift", "Oraange")
-d = {"_id":"car2", "price": 987600, "duration": 20, "source": "Ecty","destination": "Maestic","car_model": "Inova","rental_company": "VRL"}
+car = CarManager("car1", 500, 20, "Ecity", "Majestic", "Swift", "Oraange")
+d = {"_id":"car1", "price": 987600, "duration": 20, "source": "Enbvcity","destination": "Maesumnbhytfgtic","car_model": "Inova","rental_company": "VRL"}
 # packages_col.find_one_and_update({"_id": "Cars"}, {"$push": {"cars": d}}, upsert=True)
 class App(customtkinter.CTk):
     def __init__(self):
         super().__init__()
+        self.added_packages = dict()
+
         self.geometry("600x550")
         self.title("FakeMyTrip | Where your journey begins... hypothetically")
         self.grid_columnconfigure(0, weight=1)
@@ -54,10 +56,11 @@ class App(customtkinter.CTk):
         self.login_label.grid(row=1, column=0, padx=10, pady=10)
 
     def login_button_callback(self):
-        users = users_col.find_one({"_id": self.login_entry1.get()})
+        user = self.login_entry1.get()
+        users = users_col.find_one({"_id": user})
         if users is not None:
             if self.login_entry2.get() == users["password"]:
-                main_window = MainWindow(db, self, packages_col)
+                main_window = MainWindow(db, self, packages_col, user, self.added_packages)
                 main_window.withdraw()
             else:
                 self.login_label.configure(text="Password is incorrect.")

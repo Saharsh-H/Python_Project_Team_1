@@ -1,7 +1,5 @@
-import TravelManager
-
-
-class CarManager(TravelManager.TravelManager):
+from Classes.TravelManager import TravelManager
+class CarManager(TravelManager):
     def __init__(self, _id, price, duration,source, destination, car_model, rental_company):
         super().__init__(_id, price, duration, destination)
         self.car_model = car_model

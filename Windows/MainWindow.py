@@ -2,16 +2,18 @@ import sys
 import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 import customtkinter
-from Windows.ViewPackageWindow import ViewPackage
 from PIL import Image, ImageTk
 from tkinter import ttk
-
+from Windows.ViewPackageWindow import ViewPackageWindow
+from Classes.PackageManager import PackageManager
 class MainWindow(customtkinter.CTk):
-    def __init__(self, db, parent, packages_col):
+    def __init__(self, db, parent, packages_col, user, added_packages):
         super().__init__()
 
         self.db = db
+        self.user = user
         self.parent = parent
+        self.added_packages = added_packages
         self.package_col = packages_col
         parent.withdraw()
         self.current_page = 1
@@ -159,13 +161,16 @@ class MainWindow(customtkinter.CTk):
 
         # Create a frame to hold the canvas and scrollbar
         self.results_frame = customtkinter.CTkFrame(cars_tab, corner_radius=10)
-        self.results_frame.grid(row=4, column=0, columnspan=2, padx=10, pady=10, sticky="nsew")
+        self.results_frame.grid(row=5, column=0, columnspan=2, padx=10, pady=10, sticky="nsew")
 
         # Configure grid weights to allow resizing
-        cars_tab.grid_rowconfigure(4, weight=1)  # Ensure the results frame grows
+        cars_tab.grid_rowconfigure(5, weight=1)  # Ensure the results frame grows
         cars_tab.grid_columnconfigure(0, weight=1)
         self.results_frame.grid_rowconfigure(0, weight=1)
         self.results_frame.grid_columnconfigure(0, weight=1)
+
+        # Create a label for success messages
+        self.success_label = customtkinter.CTkLabel(cars_tab, text="", fg_color="green", height=30)
 
         # Create a canvas for scrolling
         canvas = customtkinter.CTkCanvas(self.results_frame, bg="white", highlightthickness=0)
@@ -203,18 +208,18 @@ class MainWindow(customtkinter.CTk):
             row=0, column=0, padx=10, pady=5, sticky="ew"
         )
         customtkinter.CTkLabel(scrollable_frame, text="Add", **header_style).grid(
-            row=0, column=1, padx=10, pady=5, sticky="ew"
-        )
-        customtkinter.CTkLabel(scrollable_frame, text="Delete", **header_style).grid(
             row=0, column=2, padx=10, pady=5, sticky="ew"
         )
-        customtkinter.CTkLabel(scrollable_frame, text="Duration", **header_style).grid(
+        customtkinter.CTkLabel(scrollable_frame, text="Delete", **header_style).grid(
             row=0, column=3, padx=10, pady=5, sticky="ew"
+        )
+        customtkinter.CTkLabel(scrollable_frame, text="Duration", **header_style).grid(
+            row=0, column=4, padx=10, pady=5, sticky="ew"
         )
 
         # Populate the scrollable frame with data
         for index, car in enumerate(filtered_cars, start=1):
-            car_id = car.get("car_model", f"car_{index}")
+            car_id = car['_id']
             if car_id not in self.car_durations:
                 self.car_durations[car_id] = 0
 
@@ -236,19 +241,25 @@ class MainWindow(customtkinter.CTk):
                 justify="right",
                 font=("Roboto", 20, "bold")
             )
-            duration_label.grid(row=index, column=3, padx=10, pady=5, sticky="ew")
+            duration_label.grid(row=index, column=4, padx=10, pady=5, sticky="ew")
 
             customtkinter.CTkButton(
                 scrollable_frame,
                 text="Add",
                 command=lambda c=car_id, lbl=duration_label: self.update_duration(c, lbl, 1)
-            ).grid(row=index, column=1, padx=10, pady=5, sticky="ew")
+            ).grid(row=index, column=2, padx=10, pady=5, sticky="ew")
 
             customtkinter.CTkButton(
                 scrollable_frame,
                 text="Delete",
                 command=lambda c=car_id, lbl=duration_label: self.update_duration(c, lbl, -1)
-            ).grid(row=index, column=2, padx=10, pady=5, sticky="ew")
+            ).grid(row=index, column=3, padx=10, pady=5, sticky="ew")
+
+            customtkinter.CTkButton(
+                scrollable_frame,
+                text="Add to package",
+                command=lambda c=car_id, lbl=duration_label: self.add_to_pkg(c, lbl)
+            ).grid(row=index, column=1, padx=10, pady=5, sticky="ew")
 
     def update_duration(self, car_id, label, change):
         self.car_durations[car_id] = max(0, self.car_durations[car_id] + change)
@@ -259,7 +270,27 @@ class MainWindow(customtkinter.CTk):
         print(f"Booking car: {car['car_model']} from {car['rental_company']} at {car['price']} rupees/day")
 
     def add_to_pkg(self, car_id, label):
-        print("Added to your package")
+        carss = self.package_col.find_one({"_id": "Cars"})
+        car = list(filter(lambda car: car["_id"] == car_id, carss["cars"]))[0]
+
+        updated_duration = self.car_durations.get(car_id, 0)
+        car["duration"] = updated_duration
+
+        print(f"Car package for {car['car_model']} removed from the database.")
+        p = PackageManager(car_id)
+        if self.added_packages == dict():
+            self.added_packages["Cars"] = [car]
+            self.added_packages["Flights"] = []
+            self.added_packages["Hotels"] = []
+        else:
+            self.added_packages["Cars"].append(car)
+
+
+
+        # Update the success label
+        self.success_label.configure(text="Added to package successfully", fg_color="green")
+        self.success_label.grid(row=4, column=0, columnspan=2, padx=10, pady=10, sticky="ew")
+        self.after(3000, lambda: self.success_label.grid_forget())  # Hide the label after 3 seconds
 
     def delete_car(self, car):
         print(f"Deleting car: {car['car_model']} from {car['rental_company']} at {car['price']} rupees/day")
@@ -292,7 +323,11 @@ class MainWindow(customtkinter.CTk):
             tree.insert("", "end", values=tuple(record.values()))
 
     def view_packages(self):
-        view_pckg = ViewPackage()
+        # Open the ViewPackageWindow popup
+        if hasattr(self, 'view_package_window') and self.view_package_window.winfo_exists():
+            self.view_package_window.lift()  # Bring the window to focus if it already exists
+        else:
+            self.view_package_window = ViewPackageWindow(self, self.db, self.user, self.added_packages)
 
     def view_cart(self):
         print("View Cart clicked!")

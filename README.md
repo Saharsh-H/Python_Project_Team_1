@@ -27,14 +27,18 @@ PS: At any time you can press the "logout" button to exit the app.
 
 ## Features Implemented
 **1. Search Functionality:** Users can enter a source city, destination city and travel date if they want to and then use the search button to find cars/flights/hotels specific to their search.
+![](misc/Feature_1.png)
+
 
 **2. Availability:** For cars, if one user has already booked a specific car, then it won't show up for another user when he presses the "Search Cars" button. However for hotels and flights, if a specific number of rooms or seats are filled up, then those hotels/flights wont be available anymore and won't even appear in the search page for another user.
 
 **3. Easy Booking:** Users can easily bundle multiple cars/flights/hotels under the same package and review them before finally booking it. If needed, users can also book multiple packages which can be easily identified using its Unique Package ID.
+![](misc/Feature_3.png)
 
 **4. The Users data and Packages are saved on the cloud:** With the use of pymongo database, the users login credentials and their packages booked are automatically saved on the cloud, so users don't need to worry if they lose their machine as long as they have clicked on the final "Book this Package" buttton. All they need to do is login with the same credentials next time.
 
 **5. Booking/Transaction Report:** Users can click on the "View your Package" button, switch to the "Booked Packages" tab and can easily access their past Bookings/Transactions.
+![](misc/Feature_5.png)
 
 ## Libraries/ Databases used
 1. CustomTkinter

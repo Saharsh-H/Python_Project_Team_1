@@ -25,7 +25,6 @@ class ViewPackageWindow(customtkinter.CTkToplevel):
         self.grid_rowconfigure(0, weight=1)
         self.wm_attributes("-topmost", 1)
 
-        # Tab view setup
         self.tab_view = customtkinter.CTkTabview(self, width=580, height=400)
         self.tab_view.grid(row=0, column=0, padx=10, pady=10, sticky="nsew")
 
@@ -58,7 +57,7 @@ class ViewPackageWindow(customtkinter.CTkToplevel):
         self.display_packages(self.packages_frame, added_packages, "View Packages")
 
         self.book_now_button = customtkinter.CTkButton(
-            self, text="Book Now", command=self.book_now, width=200
+            self, text="Book This Package", command=self.book_now, width=200
         )
         self.book_now_button.grid(row=1, column=0, pady=10)
 
@@ -90,24 +89,20 @@ class ViewPackageWindow(customtkinter.CTkToplevel):
         self.display_packages(self.booked_frame, self.booked_packages, "Booked Packages")
 
     def on_window_configure(self, event):
-        """Called when the window is resized or reconfigured, especially after maximization."""
         window_width = self.winfo_width()
         window_height = self.winfo_height()
 
-        # Resize canvases to match window size dynamically
         self.view_packages_canvas.configure(width=window_width, height=window_height - 100)
         self.booked_packages_canvas.configure(width=window_width, height=window_height - 100)
 
-        # Update the scroll region for the canvases
         self.view_packages_canvas.configure(scrollregion=self.view_packages_canvas.bbox("all"))
         self.booked_packages_canvas.configure(scrollregion=self.booked_packages_canvas.bbox("all"))
 
     def on_mouse_wheel(self, event):
-        """Scroll the canvas when the mouse wheel is used."""
         canvas = event.widget
-        if event.delta > 0:  # Scroll up
+        if event.delta > 0:
             canvas.yview_scroll(-1, "units")
-        else:  # Scroll down
+        else:
             canvas.yview_scroll(1, "units")
 
     def update_book_now_button_state(self):
@@ -181,7 +176,6 @@ class ViewPackageWindow(customtkinter.CTkToplevel):
             self.update_book_now_button_state()
 
     def format_item_details(self, item, category):
-        """Format item details based on the category."""
         if category.lower() == "cars":
             return (
                 f"Model: {item.get('car_model', 'N/A')}\n"
@@ -214,7 +208,6 @@ class ViewPackageWindow(customtkinter.CTkToplevel):
             return "Unknown category"
 
     def book_now(self):
-        # Generate a unique package ID
         package_id = str(uuid.uuid4())
         new_package = {"package_id": package_id, "Cars": [], "Hotels": [], "Flights": []}
 

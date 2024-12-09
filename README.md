@@ -25,7 +25,12 @@ PS: At any time you can press the "logout" button to exit the app.
 Python, CustomTkinter and Tkinter should be installed on your machine.
 
 ## Features Implemented
-need to fill this
+**1. Search Functionality:** Users can enter a source city, destination city and travel date if they want to and then use the search button to find cars/flights/hotels specific to their search.
+
+**2. Availability:** For cars, if one user has already booked a specific car, then it won't show up for another user when he presses the "Search Cars" button. However for hotels and flights, if a specific number of rooms or seats are filled up, then those hotels/flights wont be available anymore and won't even appear in the search page for another user.
+
+**3. Easy Booking:** Users can search for specific cars, add or delete the number of days required for renting, and then click on add to package which will be confirmed by a popup. <br>
+Users can proceed to add another car if required or switch to the hotels/flights tab and also book their flights and hotels under the same package. <br> Once everything is done, users can click on the "view your package" button to review their packages and remove any specific car/hotel/flight if needed. <br> Once the user is happy with their package, they can click on the "Book this Package" button.
 
 ## Libraries/ Databases used
 1. CustomTkinter
@@ -172,4 +177,4 @@ need to fill this
 
 **4. Saharsh S Hiremath:** Worked on the login page and the README.md file.
 
-**5. Rihan Sourabh Doshi:** Worked on the view package window and created the entire database to store the data and packages.
+**5. Rihan Sourabh Doshi:** Worked on the entire backend including view package window and created the entire database to store the data and packages.

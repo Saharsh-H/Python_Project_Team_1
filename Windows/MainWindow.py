@@ -87,13 +87,13 @@ class MainWindow(customtkinter.CTk):
         logout_button.grid(row=0, column=1, padx=10, pady=(0, 0), sticky="ne")
 
         source_entry = customtkinter.CTkEntry(
-            tab, placeholder_text=f"{tab_type} Source", height=50, width=250
+            tab, placeholder_text=f"Pickup City", height=50, width=250
         )
         source_entry.grid(row=0, column=0, sticky="ew", padx=10, pady=(10, 5))
         self.entries[tab_type]['source'] = source_entry
 
         destination_entry = customtkinter.CTkEntry(
-            tab, placeholder_text=f"{tab_type} Destination", height=50, width=250
+            tab, placeholder_text=f"Drop City", height=50, width=250
         )
         destination_entry.grid(row=1, column=0, sticky="ew", padx=10, pady=(5, 10))
         self.entries[tab_type]['destination'] = destination_entry
@@ -204,7 +204,7 @@ class MainWindow(customtkinter.CTk):
             canvas_width = event.width
             canvas.itemconfig(scrollable_frame_window, width=canvas_width)
 
-        canvas.bind("<Configure>", resize_canvas)
+        canvas.bind("<Configure>", lambda e: canvas.itemconfig(scrollable_frame_window, width=e.width))
         canvas.configure(bg="grey20")
 
         # Bind mouse wheel for scrolling (for both Windows and Linux)
@@ -277,6 +277,7 @@ class MainWindow(customtkinter.CTk):
             customtkinter.CTkButton(
                 scrollable_frame,
                 text="Add to package",
+                state="disabled" if self.car_durations[car_id] == 0 else "normal",
                 command=lambda c=car_id, lbl=duration_label: self.add_to_pkg(c, lbl)
             ).grid(row=index, column=1, padx=10, pady=5, sticky="ew")
 
@@ -284,6 +285,12 @@ class MainWindow(customtkinter.CTk):
         self.car_durations[car_id] = max(0, self.car_durations[car_id] + change)
         label.configure(text=f"{self.car_durations[car_id]} Days")
         print(f"Car {car_id} duration updated to {self.car_durations[car_id]}")
+
+        add_button = label.master.grid_slaves(row=label.grid_info()["row"], column=1)[0]
+        if self.car_durations[car_id] > 0:
+            add_button.configure(state="normal")
+        else:
+            add_button.configure(state="disabled")
 
     def book_car(self, car):
         print(f"Booking car: {car['car_model']} from {car['rental_company']} at {car['price']} rupees/day")
@@ -317,7 +324,7 @@ class MainWindow(customtkinter.CTk):
 
         print(f"Added {category} item to package: {item}")
 
-        # Display success message
+
         if hasattr(self, "success_label"):
             self.success_label.configure(text=f"{category} added to package successfully!", fg_color="green")
             self.success_label.grid(row=4, column=0, columnspan=2, padx=10, pady=10, sticky="ew")
@@ -377,16 +384,15 @@ class MainWindow(customtkinter.CTk):
 
         canvas.bind("<Configure>", resize_canvas)
 
-        # Bind mouse wheel for scrolling (for both Windows and Linux)
         def on_mouse_wheel(event):
-            if event.delta:  # For Windows
+            if event.delta:
                 canvas.yview_scroll(int(-1*(event.delta/120)), "units")
-            else:  # For Linux
+            else:
                 canvas.yview_scroll(-1*(event.num-5), "units")
 
-        canvas.bind_all("<MouseWheel>", on_mouse_wheel)  # For Windows
-        canvas.bind_all("<Button-4>", on_mouse_wheel)  # For Linux (scroll up)
-        canvas.bind_all("<Button-5>", on_mouse_wheel)  # For Linux (scroll down)
+        canvas.bind_all("<MouseWheel>", on_mouse_wheel)
+        canvas.bind_all("<Button-4>", on_mouse_wheel)
+        canvas.bind_all("<Button-5>", on_mouse_wheel)
 
         scrollable_frame.grid_columnconfigure(0, weight=3)
         scrollable_frame.grid_columnconfigure(1, weight=1)
@@ -478,16 +484,15 @@ class MainWindow(customtkinter.CTk):
 
         canvas.bind("<Configure>", resize_canvas)
 
-        # Bind mouse wheel for scrolling (for both Windows and Linux)
         def on_mouse_wheel(event):
-            if event.delta:  # For Windows
+            if event.delta:
                 canvas.yview_scroll(int(-1*(event.delta/120)), "units")
-            else:  # For Linux
+            else:
                 canvas.yview_scroll(-1*(event.num-5), "units")
 
-        canvas.bind_all("<MouseWheel>", on_mouse_wheel)  # For Windows
-        canvas.bind_all("<Button-4>", on_mouse_wheel)  # For Linux (scroll up)
-        canvas.bind_all("<Button-5>", on_mouse_wheel)  # For Linux (scroll down)
+        canvas.bind_all("<MouseWheel>", on_mouse_wheel)
+        canvas.bind_all("<Button-4>", on_mouse_wheel)
+        canvas.bind_all("<Button-5>", on_mouse_wheel)
 
         scrollable_frame.grid_columnconfigure(0, weight=3)
         scrollable_frame.grid_columnconfigure(1, weight=1)
@@ -548,6 +553,7 @@ class MainWindow(customtkinter.CTk):
             customtkinter.CTkButton(
                 scrollable_frame,
                 text="Add to package",
+                state="disabled" if self.hotel_durations[hotel_id] == 0 else "normal",
                 command=lambda h=hotel_id, lbl=duration_label: self.add_hotel_to_package(h, lbl)
             ).grid(row=index, column=4, padx=10, pady=5, sticky="ew")
 
@@ -562,6 +568,11 @@ class MainWindow(customtkinter.CTk):
         self.hotel_durations[hotel_id] = max(0, self.hotel_durations[hotel_id] + change)
         label.configure(text=f"{self.hotel_durations[hotel_id]} Days")
         print(f"Hotel {hotel_id} duration updated to {self.hotel_durations[hotel_id]}")
+        add_button = label.master.grid_slaves(row=label.grid_info()["row"], column=4)[0]
+        if self.hotel_durations[hotel_id] > 0:
+            add_button.configure(state="normal")
+        else:
+            add_button.configure(state="disabled")
 
     def add_hotel_to_package(self, hotel_id, label):
         hotels = self.package_col.find_one({"_id": "Hotels"})

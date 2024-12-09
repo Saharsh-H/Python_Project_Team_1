@@ -2,7 +2,7 @@
 This app is a travel booking system that allows users to search for and book flights, hotels and rental cars. This app is written using Python.
 
 ## How to use the app
-**Step 1:** Open the main.py file and click on the "Run" button if you are on VS code. If you are using terminal, navigate to the "Team_1" directory and type "python main.py"
+**Step 1:** Open the main.py file and click on the "Run" button if you are on VS code. If you are using terminal, navigate to the "Team_01" directory and type "python main.py"
 
 **Step 2:** Create an account by clicking on the "Register" button.
 

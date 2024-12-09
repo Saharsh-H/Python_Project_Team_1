@@ -61,6 +61,8 @@ class App(customtkinter.CTk):
         if users is not None:
             if self.login_entry2.get() == users["password"]:
                 main_window = MainWindow(db, self, packages_col, user, self.added_packages)
+                self.login_entry1.delete(0, "end")
+                self.login_entry2.delete(0, "end")
                 main_window.withdraw()
             else:
                 self.login_label.configure(text="Password is incorrect.")

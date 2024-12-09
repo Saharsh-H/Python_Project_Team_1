@@ -28,7 +28,7 @@ class MainWindow(customtkinter.CTk):
         main_window = customtkinter.CTkToplevel(self)
         main_window.lift()
         main_window.title("FakeMyTrip | Where your journey begins... hypothetically")
-        main_window.geometry("1024x768")
+        main_window.geometry("1000x800")
         main_window.grid_columnconfigure(0, weight=1)
         main_window.grid_rowconfigure(0, weight=0)
         main_window.grid_rowconfigure(1, weight=1)
@@ -173,9 +173,9 @@ class MainWindow(customtkinter.CTk):
         ]
 
         self.results_frame = customtkinter.CTkFrame(cars_tab, corner_radius=10)
-        self.results_frame.grid(row=5, column=0, columnspan=2, padx=10, pady=10, sticky="nsew")
+        self.results_frame.grid(row=5, column=0, columnspan=5, padx=10, pady=100, sticky="nsew")
 
-        cars_tab.grid_rowconfigure(5, weight=1)
+        cars_tab.grid_rowconfigure(5, weight=3)
         cars_tab.grid_columnconfigure(0, weight=1)
         self.results_frame.grid_rowconfigure(0, weight=1)
         self.results_frame.grid_columnconfigure(0, weight=1)
@@ -345,9 +345,9 @@ class MainWindow(customtkinter.CTk):
         ]
 
         self.results_frame_flights = customtkinter.CTkFrame(flights_tab, corner_radius=10)
-        self.results_frame_flights.grid(row=5, column=0, columnspan=2, padx=10, pady=10, sticky="nsew")
+        self.results_frame_flights.grid(row=5, column=0, columnspan=5, padx=10, pady=100, sticky="nsew")
 
-        flights_tab.grid_rowconfigure(5, weight=1)
+        flights_tab.grid_rowconfigure(5, weight=3)
         flights_tab.grid_columnconfigure(0, weight=1)
         self.results_frame_flights.grid_rowconfigure(0, weight=1)
         self.results_frame_flights.grid_columnconfigure(0, weight=1)
@@ -444,11 +444,11 @@ class MainWindow(customtkinter.CTk):
         self.hotel_durations = {}
 
         self.results_frame_hotels = customtkinter.CTkFrame(hotels_tab, corner_radius=10)
-        self.results_frame_hotels.grid(row=5, column=0, columnspan=2, padx=10, pady=10, sticky="nsew")
+        self.results_frame_hotels.grid(row=5, column=0, columnspan=5, padx=10, pady=100, sticky="nsew")
 
 
 
-        hotels_tab.grid_rowconfigure(5, weight=1)
+        hotels_tab.grid_rowconfigure(5, weight=3)
         hotels_tab.grid_columnconfigure(0, weight=1)
         self.results_frame_hotels.grid_rowconfigure(0, weight=1)
         self.results_frame_hotels.grid_columnconfigure(0, weight=1)

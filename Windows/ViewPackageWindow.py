@@ -1,7 +1,6 @@
 import customtkinter
 import uuid
 
-
 class ViewPackageWindow(customtkinter.CTkToplevel):
     def __init__(self, parent, db, user, added_packages, main_window):
         super().__init__(parent)
@@ -19,18 +18,19 @@ class ViewPackageWindow(customtkinter.CTkToplevel):
 
         self.lift()
         self.title("Your Packages")
-        self.geometry("600x500")
+        self.geometry("600x500+100+100")
+        self.bind("<Configure>", self.on_window_configure)
+
         self.grid_columnconfigure(0, weight=1)
         self.grid_rowconfigure(0, weight=1)
+        self.wm_attributes("-topmost", 1)
 
+        # Tab view setup
         self.tab_view = customtkinter.CTkTabview(self, width=580, height=400)
         self.tab_view.grid(row=0, column=0, padx=10, pady=10, sticky="nsew")
 
         self.view_packages_tab = self.tab_view.add("View Packages")
         self.booked_packages_tab = self.tab_view.add("Booked Packages")
-
-        self.tab_view.grid_columnconfigure(0, weight=1)
-        self.tab_view.grid_rowconfigure(0, weight=1)
 
         self.view_packages_canvas = customtkinter.CTkCanvas(
             self.view_packages_tab,
@@ -54,9 +54,7 @@ class ViewPackageWindow(customtkinter.CTkToplevel):
             "<Configure>", lambda e: self.view_packages_canvas.configure(scrollregion=self.view_packages_canvas.bbox("all"))
         )
 
-        # Bind mouse wheel for scrolling
         self.view_packages_canvas.bind_all("<MouseWheel>", self.on_mouse_wheel)
-
         self.display_packages(self.packages_frame, added_packages, "View Packages")
 
         self.book_now_button = customtkinter.CTkButton(
@@ -88,10 +86,21 @@ class ViewPackageWindow(customtkinter.CTkToplevel):
             "<Configure>", lambda e: self.booked_packages_canvas.configure(scrollregion=self.booked_packages_canvas.bbox("all"))
         )
 
-        # Bind mouse wheel for scrolling
         self.booked_packages_canvas.bind_all("<MouseWheel>", self.on_mouse_wheel)
-
         self.display_packages(self.booked_frame, self.booked_packages, "Booked Packages")
+
+    def on_window_configure(self, event):
+        """Called when the window is resized or reconfigured, especially after maximization."""
+        window_width = self.winfo_width()
+        window_height = self.winfo_height()
+
+        # Resize canvases to match window size dynamically
+        self.view_packages_canvas.configure(width=window_width, height=window_height - 100)
+        self.booked_packages_canvas.configure(width=window_width, height=window_height - 100)
+
+        # Update the scroll region for the canvases
+        self.view_packages_canvas.configure(scrollregion=self.view_packages_canvas.bbox("all"))
+        self.booked_packages_canvas.configure(scrollregion=self.booked_packages_canvas.bbox("all"))
 
     def on_mouse_wheel(self, event):
         """Scroll the canvas when the mouse wheel is used."""
@@ -140,29 +149,28 @@ class ViewPackageWindow(customtkinter.CTkToplevel):
                             ).grid(row=row, column=0, padx=10, pady=(0, 10), sticky="ew")
                             row += 1
         elif isinstance(packages, dict):
-            if isinstance(packages, dict):
-                for category, items in packages.items():
-                    if items:
+            for category, items in packages.items():
+                if items:
+                    customtkinter.CTkLabel(
+                        frame, text=f"{category.capitalize()}:", font=("Roboto", 16, "bold")
+                    ).grid(row=row, column=0, padx=10, pady=(10, 5), sticky="w")
+                    row += 1
+
+                    for item in items:
+                        item_details = self.format_item_details(item, category)
                         customtkinter.CTkLabel(
-                            frame, text=f"{category.capitalize()}:", font=("Roboto", 16, "bold")
-                        ).grid(row=row, column=0, padx=10, pady=(10, 5), sticky="w")
+                            frame, text=item_details, anchor="w", justify="left"
+                        ).grid(row=row, column=0, padx=10, pady=(0, 10), sticky="ew")
+
+                        customtkinter.CTkButton(
+                            frame,
+                            text="Remove",
+                            fg_color="red",
+                            hover_color="darkred",
+                            command=lambda cat=category, itm=item: self.remove_from_package(cat, itm)
+                        ).grid(row=row, column=1, padx=10, pady=(0, 10), sticky="ew")
+
                         row += 1
-
-                        for item in items:
-                            item_details = self.format_item_details(item, category)
-                            customtkinter.CTkLabel(
-                                frame, text=item_details, anchor="w", justify="left"
-                            ).grid(row=row, column=0, padx=10, pady=(0, 10), sticky="ew")
-
-                            customtkinter.CTkButton(
-                                frame,
-                                text="Remove",
-                                fg_color="red",
-                                hover_color="darkred",
-                                command=lambda cat=category, itm=item: self.remove_from_package(cat, itm)
-                            ).grid(row=row, column=1, padx=10, pady=(0, 10), sticky="ew")
-
-                            row += 1
 
     def remove_from_package(self, category, item):
         if category in self.added_packages and item in self.added_packages[category]:
@@ -170,7 +178,6 @@ class ViewPackageWindow(customtkinter.CTkToplevel):
             print(f"Removed item from {category}: {item}")
 
             self.display_packages(self.packages_frame, self.added_packages, "View Packages")
-
             self.update_book_now_button_state()
 
     def format_item_details(self, item, category):
@@ -209,7 +216,6 @@ class ViewPackageWindow(customtkinter.CTkToplevel):
     def book_now(self):
         # Generate a unique package ID
         package_id = str(uuid.uuid4())
-
         new_package = {"package_id": package_id, "Cars": [], "Hotels": [], "Flights": []}
 
         for category, items in self.added_packages.items():
@@ -262,6 +268,4 @@ class ViewPackageWindow(customtkinter.CTkToplevel):
 
         self.booked_packages = self.users_col.find_one({"_id": self.user}).get("packages", [])
         self.display_packages(self.booked_frame, self.booked_packages, "Booked Packages")
-        self.update_book_now_button()
-
         self.update_book_now_button_state()
